@@ -1,7 +1,9 @@
 import mysql.connector
 from config import data_base
 from Class_exercise import Chest_ex
-from Class_user import User
+from Class_about_user import User
+from Class_about_user import User_char
+import openpyxl as op
 
 
 class DB:
@@ -21,6 +23,7 @@ class DB:
     # def connect(self) -> mysql.connector | None:
     def connect(self) -> mysql.connector:
         """Подключение к БД"""
+
         try:
             self.name = self._db_name
             connect = mysql.connector.connect(
@@ -36,26 +39,9 @@ class DB:
             print(f'connection failed in function connect, exception: {exc}')
             print(exc)
 
-    def add_new_ex(self, ex: object) -> None:
-        """Добавляет новое упражнение в таблицу chest_exercise"""
-
-        insert_query = f"INSERT INTO exercise.chest_exercise (name, description, full_description, number, weight)" \
-                       f" VALUES (\"{ex.name}\", \"{ex.description}\", \"{ex.ful_desc}\", {ex.number}, {ex.weight});"
-
-        try:
-            with self._connection.cursor() as cursor:
-                cursor.execute(insert_query)
-                # чтобы сохранить в бд
-                self._connection.commit()
-                # self._connection_close() - for what???
-                print('string is added')
-
-        except Exception as exc:
-            print(f'connection failed in function add_new_ex, exception: {exc}')
-            print(exc)
-
-    def add_new_user(self, user: object) -> None:
-        """Добавляет нового пользователя в таблицу user"""
+    def add_new_user(self, user: object) -> int:
+        """Добавляет нового пользователя в таблицу user.
+        Возвращает iduser последнего добавленного юзера"""
 
         insert_query = f"INSERT INTO exercise.user (login, email, password)" \
                        f" VALUES (\"{user.login}\", \"{user.email}\", \"{user.password}\");"
@@ -65,41 +51,127 @@ class DB:
                 cursor.execute(insert_query)
                 # чтобы сохранить в бд
                 self._connection.commit()
-                # self._connection_close()
                 print('string is added')
-
+                return self._connection_lastid(cursor)
+                # print(self._connection_lastid(cursor))
+                # self._connection_close()
         except Exception as exc:
             print(f'connection failed in function add_new_user, exception: {exc}')
             print(exc)
-    def get_iduser(self, user: object)->int:
-        """Возвращает id юзера в таблице user"""
-        try:
-            select_query=f"SELECT iduser FROM exercise.user WHERE login=\"{user.login}\""
-            with self._connection.cursor() as cursor:
-                cursor.execute(select_query)
-                return cursor.fetchone()[0]
-        except Exception as exc:
-            print(f'connection failed in function get_iduser, exception: {exc}')
-            print(exc)
 
-    def add_new_train(self, train: object) -> None:
-        """Добавляет в таблицу train новую строчку"""
+    def add_user_char(self, id_user: int, user_char: object) -> None:
+        """Создаёт характеристики юзера"""
 
-        insert_query = f"INSERT INTO exercise.train (day_counter, mark, weight_mult, number_mult)" \
-                       f" VALUES (\"{train.day_counter}\", \"{train.mark}\", \"{train.weight_mult}\", " \
-                       f"\"{train.number_mult}\");"
-
+        insert_query = f"INSERT INTO exercise.user_characteristic (iduser, aim, level, days," \
+                       f" muscule, male, height, weight, fat, day_counter, mark, weight_mult, number_mult, current_plan) " \
+                       f"VALUES ({id_user}, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
         try:
             with self._connection.cursor() as cursor:
-                cursor.execute(insert_query)
+                cursor.execute(insert_query, user_char.all_stat())
                 # чтобы сохранить в бд
                 self._connection.commit()
-                # self._connection_close()
+                # self._connection_close() #- for what???
                 print('string is added')
+        except Exception as exc:
+            print(f'connection failed in function add_user_char, exception: {exc}')
+            print(exc)
+
+    def select_user(self, desktop_login: str) -> list:
+        """Выводит данные юзера по логину из БД
+        desktop_login - логин, который вводит пользователь с экрана"""
+
+        select_query = f"SELECT * FROM exercise.user WHERE login = \"{desktop_login}\";"
+        # select_query = f"SELECT * FROM exercise.user WHERE login = 'Monica';"
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                # self._connection_close()
+                selected_user = cursor.fetchone()
+                if selected_user is None:
+                    raise TypeError
+                return selected_user
+                # self._connection_close()
+        except TypeError as exc:
+            print(f'пользователь с таким логином не зарегистрирован')
+            print('connection failed in function select_user')
 
         except Exception as exc:
-            print(f'connection failed in function add_new_user, exception: {exc}')
+            print(f'connection failed in function select_user, exception: {exc}')
             print(exc)
+
+    def init_user(self, desktop_login: str, desktop_password: str) -> object:
+        """Создаём объект класса юзер, если логин и пароль совпал.
+        desktop_login - логин, который вводит пользователь с экрана,
+        desktop_password - пароль, который вводит пользователь с экрана"""
+
+        selected_user = self.select_user(desktop_login)
+        if desktop_password == selected_user[3]:
+            iduser = selected_user[0]
+            login = selected_user[1]
+            email = selected_user[2]
+            password = selected_user[3]
+            return User(iduser, login, email, password)
+
+    def select_user_char(self, user: object) -> object:
+        """Возвращает характеристики пользователя"""
+        select_query = f"SELECT * FROM exercise.user_characteristic WHERE iduser = {user.iduser};"
+
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                # self._connection_close()
+                selected_user_char = cursor.fetchone()
+                if selected_user_char is None:
+                    raise TypeError
+                return selected_user_char
+                # self._connection_close()
+        except TypeError as exc:
+            print(f'пользователь с таким логином не зарегистрирован')
+            print('connection failed in function select_user_char')
+        except Exception as exc:
+            print(f'connection failed in function select_user_char, exception: {exc}')
+            print(exc)
+
+    def init_user_char(self, user: object) -> object:
+        """Создаём объект характеристик класса юзер"""
+
+        selected_user_char = self.select_user_char(user)
+        # dict={
+        # 'iduser_characteristic': selected_user_char[0],
+        # 'iduser': selected_user_char[1],
+        # 'aim': selected_user_char[2],
+        # 'level': selected_user_char[3],
+        # 'days': selected_user_char[4],
+        # 'muscule': selected_user_char[5],
+        # 'male': selected_user_char[6],
+        # 'height': selected_user_char[7],
+        # 'weight': selected_user_char[8],
+        # 'fat': selected_user_char[9],
+        # 'day_counter': selected_user_char[10],
+        # 'mark': selected_user_char[11],
+        # 'weight_mult': selected_user_char[12],
+        # 'number_mult': selected_user_char[13],
+        # 'current_plan': selected_user_char[14]
+        # }
+        # return User_char(dict.values())
+
+        iduser_characteristic = selected_user_char[0]
+        iduser = selected_user_char[1]
+        aim = selected_user_char[2]
+        level = selected_user_char[3]
+        days = selected_user_char[4]
+        muscule = selected_user_char[5]
+        male = selected_user_char[6]
+        height = selected_user_char[7]
+        weight = selected_user_char[8]
+        fat = selected_user_char[9]
+        day_counter = selected_user_char[10]
+        mark = selected_user_char[11]
+        weight_mult = selected_user_char[12]
+        number_mult = selected_user_char[13]
+        current_plan = selected_user_char[14]
+        return User_char(iduser_characteristic, iduser, aim, level, days, muscule, male, height, weight, fat,
+                         day_counter, mark, weight_mult, number_mult, current_plan)
 
     def del_user(self, id_user=2) -> None:
         """Добавляет нового пользователя в таблицу user"""
@@ -126,10 +198,40 @@ class DB:
                 rows = cursor.fetchall()
                 for row in rows:
                     print(row)
+                self._connection_lastid()
 
         except Exception as exc:
             print(f'connection failed in function show_bd, exception: {exc}')
             print(exc)
+
+    def get_iduser(self, user: object) -> int:
+        """Возвращает id юзера по логину"""
+        try:
+            select_query = f"SELECT iduser FROM exercise.user WHERE login=\"{user.login}\""
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                return cursor.fetchone()[0]
+        except Exception as exc:
+            print(f'connection failed in function get_iduser, exception: {exc}')
+            print(exc)
+
+    def _connection_lastid(self, cursor):
+        """Возвращает индекс последней добавленной строки"""
+
+        try:
+            last_id = cursor.lastrowid
+            # if string wasn't added, we see an except
+            if last_id == None:
+                raise TypeError
+            return last_id
+
+        except TypeError as tr:
+            print(f'{tr}. Function _connection_lastid. No string is added! ')
+
+        except Exception as exc:
+            print(f'connection failed in function _connection_lastid, exception: {exc}')
+        finally:
+            cursor.close()
 
     def _connection_commit(self):
         return self._connection.commit()
@@ -147,8 +249,13 @@ if __name__ == "__main__":
     # db.add_new_user(Tom)
     # db.add_new_user(Jerry)
     # db.del_user(id_user=5)
-    print(db.get_iduser(Tom))
-
-    db.show_bd()
+    # print(db.get_iduser(Tom))
     # db.show_bd()
-    # db.add_new_ex(ex)
+    # db.show_bd()
+    # db.add_user_char(id_user=1, user_char=User_char())
+    # print(db.select_user_char(Tom))
+    print(db.init_user_char(Tom).all_stat())
+    # Tom=db.init_user('Tom', '1II1')
+    # print(Tom.email)
+
+# db.add_new_ex(ex)
