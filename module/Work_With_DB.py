@@ -1,9 +1,7 @@
 import mysql.connector
 from config import data_base
-from Class_exercise import Chest_ex
-from Class_about_user import User
-from Class_about_user import User_char
-import openpyxl as op
+from Class_About_User import User
+from Class_About_User import User_Char
 
 
 class DB:
@@ -67,9 +65,9 @@ class DB:
                        f"VALUES ({id_user}, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
         try:
             with self._connection.cursor() as cursor:
-                cursor.execute(insert_query, user_char.all_stat())
+                cursor.execute(insert_query, user_char.all_stat)
                 # чтобы сохранить в бд
-                self._connection.commit()
+                # self._connection.commit()
                 # self._connection_close() #- for what???
                 print('string is added')
         except Exception as exc:
@@ -136,42 +134,8 @@ class DB:
         """Создаём объект характеристик класса юзер"""
 
         selected_user_char = self.select_user_char(user)
-        # dict={
-        # 'iduser_characteristic': selected_user_char[0],
-        # 'iduser': selected_user_char[1],
-        # 'aim': selected_user_char[2],
-        # 'level': selected_user_char[3],
-        # 'days': selected_user_char[4],
-        # 'muscule': selected_user_char[5],
-        # 'male': selected_user_char[6],
-        # 'height': selected_user_char[7],
-        # 'weight': selected_user_char[8],
-        # 'fat': selected_user_char[9],
-        # 'day_counter': selected_user_char[10],
-        # 'mark': selected_user_char[11],
-        # 'weight_mult': selected_user_char[12],
-        # 'number_mult': selected_user_char[13],
-        # 'current_plan': selected_user_char[14]
-        # }
-        # return User_char(dict.values())
 
-        iduser_characteristic = selected_user_char[0]
-        iduser = selected_user_char[1]
-        aim = selected_user_char[2]
-        level = selected_user_char[3]
-        days = selected_user_char[4]
-        muscule = selected_user_char[5]
-        male = selected_user_char[6]
-        height = selected_user_char[7]
-        weight = selected_user_char[8]
-        fat = selected_user_char[9]
-        day_counter = selected_user_char[10]
-        mark = selected_user_char[11]
-        weight_mult = selected_user_char[12]
-        number_mult = selected_user_char[13]
-        current_plan = selected_user_char[14]
-        return User_char(iduser_characteristic, iduser, aim, level, days, muscule, male, height, weight, fat,
-                         day_counter, mark, weight_mult, number_mult, current_plan)
+        return User_Char(*selected_user_char)
 
     def del_user(self, id_user=2) -> None:
         """Добавляет нового пользователя в таблицу user"""
@@ -196,9 +160,8 @@ class DB:
             with self._connection.cursor() as cursor:
                 cursor.execute(f"SELECT * FROM exercise.{table_name}")
                 rows = cursor.fetchall()
-                for row in rows:
-                    print(row)
-                self._connection_lastid()
+                self._connection_lastid(cursor)
+                return rows
 
         except Exception as exc:
             print(f'connection failed in function show_bd, exception: {exc}')
@@ -243,18 +206,18 @@ class DB:
 if __name__ == "__main__":
     Tom = User(login='Tom', email='Tom.com', password='1II1')
     Jerry = User(login='Jerry', email='Jeronimo.ru', password='1VV1')
-    # ex = Chest_ex()
+    # ex = Chest_Ex()
     db = DB()
     # db.add_new_ex(ex)
     # db.add_new_user(Tom)
     # db.add_new_user(Jerry)
     # db.del_user(id_user=5)
     # print(db.get_iduser(Tom))
+    print(db.show_bd())
     # db.show_bd()
-    # db.show_bd()
-    # db.add_user_char(id_user=1, user_char=User_char())
+    # db.add_user_char(id_user=1, user_char=User_Char())
     # print(db.select_user_char(Tom))
-    print(db.init_user_char(Tom).all_stat())
+    print(db.init_user_char(Tom).all_stat)
     # Tom=db.init_user('Tom', '1II1')
     # print(Tom.email)
 
