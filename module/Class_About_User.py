@@ -1,3 +1,4 @@
+from User_Char_Const import d_mark, d_aim_mult, d_male_mult, d_level_mult
 class User():
 
     def __init__(self, iduser='1', login='log', email='email', password='pswrd'):
@@ -61,21 +62,15 @@ class User_Char():
 
             pass
 
-    def mark(self, key) -> int:
-        d = {'трудно': 0,
-             'круто': 1,
-             'легко': 2}
-        self.mark += d[key]
+    def set_mark(self, key: str) -> int:
+        self.mark += d_mark[key]
         return self.mark
 
 
     def set_weight_mult(self) -> float:
         p1 = 0.8
         p2 = 0.9
-        male_mult = {'М': 1, 'Ж': 0.5}
-        level_mult = {1: 0.5, 2: 0.7, 3: 1}
-        aim_mult = {1: 0.5, 2: 1.05, 3: 1}
-        self.weight_mult = male_mult[self.male] * level_mult[self.level] * aim_mult[self.aim]
+        self.weight_mult = d_male_mult[self.male] * d_level_mult[self.level] * d_aim_mult[self.aim]
 
         return round(self.weight_mult, 2)
 
@@ -83,11 +78,8 @@ class User_Char():
     def set_number_mult(self) -> float:
         p1 = 0.7
         p2 = 0.8
-        male_mult = {'М': 1, 'Ж': 0.5}
-        level_mult = {1: 0.5, 2: 1, 3: 1.5}
-        aim_mult = {1: 1.05, 2: 0.5, 3: 1}
 
-        self.number_mult = male_mult[self.male] * level_mult[self.level] * aim_mult[self.aim] * (
+        self.number_mult = d_male_mult[self.male] * d_level_mult[self.level] * d_aim_mult[self.aim] * (
                 p1 * self.height / User_Char.H +
                 +p2 * self.weight * (100 - self.fat) / (User_Char.W * (100 - User_Char.FAT)))
         return round(self.number_mult, 2)
@@ -110,5 +102,4 @@ def mark(key) -> int:
          'легко': 2}
 
     return d[key]
-
 
