@@ -56,7 +56,7 @@ Builder.load_string("""
             Button:
                 size_hint: [1, .25]
                 text: 'Go back'
-                on_press: root.default_view(); root.manager.current ="EnterScreen"
+                on_press: root.go_back()
              
 <AimScreen>:
     AnchorLayout:
@@ -79,7 +79,7 @@ Builder.load_string("""
                     Button:
                         size_hint: [.5, .7]
                         text: 'Go back'
-                        on_press: root.default_view(groupname='smth'); root.manager.current ="EnterScreen"; root.go_back()
+                        on_press: root.default_view(groupname='smth'); root.manager.current ="Enter Screen"; root.go_back()
                          
 <LevelScreen>:
     AnchorLayout:   
@@ -148,20 +148,33 @@ Builder.load_string("""
                 cols:2
                 padding: 0, 0, 0, 15
                 ToggleButton:
+                    id: mon  
                     text: 'Пн'
-
+                    on_press: root.active_mon()
                 ToggleButton:
+                    id: tue
                     text: 'Вт'
+                    on_press: root.active_tue()
                 ToggleButton:
+                    id: wen
                     text: 'Ср'
+                    on_press: root.active_wen()
                 ToggleButton:
+                    id: thr
                     text: 'Чт'
+                    on_press: root.active_thr()
                 ToggleButton:
+                    id: fr
                     text: 'Пт'
+                    on_press: root.active_fr()
                 ToggleButton:
+                    id: sat
                     text: 'Сб'
+                    on_press: root.active_sat()
                 ToggleButton:
+                    id: sun
                     text: 'Вс'
+                    on_press: root.active_sun()
                 BoxLayout    
                     orientation: 'vertical'
                     AnchorLayout:
@@ -169,21 +182,22 @@ Builder.load_string("""
                             size_hint: [.5, .7]
                             id: confirm
                             text: 'Confirm'
-                            on_press: root.confirm(groupname='smth'); root.manager.current ="Musculetype Screen"; root.default_view(groupname='smth')
+                            on_press: root.confirm(); root.default_view()
                     AnchorLayout:
                         Button:
                             size_hint: [.5, .7]
                             text: 'Go back'
-                            on_press: root.default_view(groupname='smth'); root.manager.current ="Level Screen"; root.go_back()
+                            on_press: root.go_back()
 <MusculetypeScreen>:
     AnchorLayout:
         BoxLayout:
+            height: '200dp'
+            width: '200dp' 
             spacing: 15
             GridLayout:
                 cols:2
                 CheckBox:
                     id: chest
-                    size: (150, 150)
                     background_checkbox_normal: 'i_chest.png'
                     background_checkbox_down:'i_chest_frame.png'
                     on_press: root.active_chest()   
@@ -228,7 +242,7 @@ Builder.load_string("""
                         size_hint: [.5, .7]
                         id: confirm
                         text: 'Confirm'
-                        on_press: root.confirm(); root.manager.current ="Fat Screen"
+                        on_press: root.confirm(); root.default_view()
 <FatScreen>
     AnchorLayout:
         BoxLayout:
@@ -354,7 +368,12 @@ class LoginScreen(Screen):
         # label=Label(text='sucsess')
         # self.ids.LoginWidgets.add_widget(label)
         self.ids.confirm.text='sucsess!'
-
+    #
+    # Button:
+    # size_hint: [1, .25]
+    # text: 'Go back'
+    # on_press: root.default_view();
+    # root.manager.current = "EnterScreen"
     def default_fill_username(self):
         """Возвращает имя юзера по умолчанию"""
 
@@ -373,7 +392,14 @@ class LoginScreen(Screen):
             self.ids.password.password = False
             self.ids.password.text = 'K@r1'
 
-
+    def go_back(self):
+        if  self.ids.username.text == '':
+            pass
+        elif self.ids.password.text == '':
+            pass
+        else:
+            self.default_view()
+            self.manager.current="Enter Screen"
     def default_view(self):
         """Возвращает вид по умолчанию"""
 
@@ -457,42 +483,104 @@ class LevelScreen(Screen):
             value.state = 'normal'
 
 class WeekdayScreen(Screen):
-    def confirm(self, groupname: list):
-        """В зависимости от того, что выбрал пользователь, сохраняет для БД один из вариантов,
-            переводит пользователя на следующую страницу, если что-то выбрано, если не выбрано, ничего не происходит"""
-        widgets = ToggleButtonBehavior.get_widgets(groupname)
+    def __init__(self, name):
+        super(Screen, self).__init__()
+        self.list=[0,0,0,0,0,0, 0]
+        self.name=name
 
-        for value in widgets:
-            if value.state == 'down' and value.text == 'Пн':
-                print('Пн')
-            #     тут он должен перейти на следующую страницу
-            elif value.state == 'down' and value.text == 'Вт':
-                print('Вт')
-            elif value.state == 'down' and value.text == 'Ср':
-                print('Ср')
-            elif value.state == 'down' and value.text == 'Чт':
-                print('Чт')
-            elif value.state == 'down' and value.text == 'Пт':
-                print('Пт')
-            elif value.state == 'down' and value.text == 'Сб':
-                print('Сб')
-            elif value.state == 'down' and value.text == 'Вс':
-                print('Вс')
+    def active_mon(self):
+        if self.ids.mon.state == 'down':
+            print('Пн')
+            i = 0
+            self.list.insert(i, i + 1)
+            self.list.pop(i + 1)
+            return self.list
+    def active_tue(self):
+        if self.ids.tue.state == 'down':
+            print('Вт')
+            i=1
+            self.list.insert(i, i + 1)
+            self.list.pop(i + 1)
+            return self.list
+    def active_wen(self):
+        if self.ids.wen.state == 'down':
+            print('Ср')
+            i = 2
+            self.list.insert(i, i + 1)
+            self.list.pop(i + 1)
+            return self.list
+    def active_thr(self):
+        if self.ids.thr.state == 'down':
+            print('Чт')
+            i = 3
+            self.list.insert(i, i + 1)
+            self.list.pop(i + 1)
+            return self.list
+    def active_fr(self):
+        if self.ids.fr.state == 'down':
+            print('Пт')
+            i = 4
+            self.list.insert(i, i + 1)
+            self.list.pop(i + 1)
+            return self.list
+    def active_sat(self):
+        if self.ids.sat.state == 'down':
+            print('Сб')
+            i = 5
+            self.list.insert(i, i + 1)
+            self.list.pop(i + 1)
+            return self.list
+    def active_sun(self):
+        if self.ids.sun.state == 'down':
+            print('Вс')
+            i = 6
+            self.list.insert(i, i + 1)
+            self.list.pop(i + 1)
+            return self.list
+    def confirm(self):
+        """Cохраняет cписок из выбранных положений в БД.
+        В зависимости от того, что выбрал пользователь, сохраняет для БД один из вариантов,
+        переводит пользователя на следующую страницу, если что-то выбрано, если не выбрано, ничего не происходит"""
+        for i in range(0, self.list.count(0)):
+            self.list.remove(0)
+
+        if len(self.list) == 0:
+            return None
+        else:
+            self.check_flag(1)
+            print(self.list)
+            return self.list
+    def check_flag(self, flag):
+        if flag:
+            self.manager.current="Musculetype Screen"
+
     def go_back(self):
         """Очищает выбор пользователя в БД"""
-        pass
+        self.default_view()
+        self.manager.current="Level Screen"
 
-    def default_view(self, groupname: list):
+    def default_view(self):
         """Возвращает вид по умолчанию"""
-        widgets = ToggleButtonBehavior.get_widgets(groupname)
-        for value in widgets:
-            value.state = 'normal'
+        """Возвращает вид по умолчанию"""
+        self.ids.mon.state = 'normal'
+        self.ids.tue.state = 'normal'
+        self.ids.wen.state = 'normal'
+        self.ids.thr.state = 'normal'
+        self.ids.fr.state = 'normal'
+        self.ids.sat.state = 'normal'
+        self.ids.sun.state = 'normal'
+        self.list = [0, 0, 0, 0, 0, 0, 0]
 
 class MusculetypeScreen(Screen):
     def __init__(self, name):
         super(Screen, self).__init__()
         self.list=[0,0,0,0,0,0]
         self.name=name
+
+    # def cb_create(self):
+    #     self.ids.chest.size=
+
+
     def active_chest(self):
         if self.ids.chest.state == 'down':
             print('chest')
@@ -536,15 +624,20 @@ class MusculetypeScreen(Screen):
             self.list.pop(i + 1)
             return self.list
     def confirm(self):
-        """Сохраняет словарь из выбранных положений в БД"""
-        c=self.list.count(0)
-        for i in range(0, c):
+        """Сохраняет cписок из выбранных положений в БД"""
+        for i in range(0, self.list.count(0)):
             self.list.remove(0)
 
-        print(self.list)
-        self.default_view()
+        if len(self.list) == 0:
+            return None
+        else:
+            self.check_flag(1)
+            print(self.list)
+            return self.list
 
-        return self.list
+    def check_flag(self, flag):
+        if flag:
+            self.manager.current = "Fat Screen"
 
     def go_back(self):
         """Очищает выбор пользователя в БД"""
@@ -638,7 +731,7 @@ class TestApp(App):
 
     def build(self):
         sm=ScreenManager()
-        sm.add_widget(EnterScreen(name='EnterScreen'))
+        sm.add_widget(EnterScreen(name='Enter Screen'))
         sm.add_widget(LoginScreen(name='Log in'))
         sm.add_widget(AimScreen(name='Aim Screen'))
         sm.add_widget(LevelScreen(name='Level Screen'))
