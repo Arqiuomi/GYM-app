@@ -1,8 +1,13 @@
+import logging
+
 import mysql.connector
 from config import data_base
 from Class_About_User import User
 from Class_About_User import User_Char
+from Class_Exercise import Exercise
 
+logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
+                    format="%(module)s def %(funcName)s, %(levelname)s: %(message)s")
 
 class DB:
     """Класс для инициализации базы данных и работы с ней
@@ -31,11 +36,13 @@ class DB:
                 password=self._password,
                 database=self.name,
             )
+            logging.info(f"connected to the DB")
             return connect
 
         except Exception as exc:
             print(f'connection failed in function connect, exception: {exc}')
             print(exc)
+            logging.error(f'connection failed in function connect, exception: {exc}')
 
     def add_new_user(self, user: object) -> int:
         """Добавляет нового пользователя в таблицу user.
@@ -75,7 +82,7 @@ class DB:
             print(exc)
 
     def select_user(self, desktop_login: str) -> list:
-        """Выводит данные юзера по логину из БД
+        """Выводит данные юзера ИЗ БД по логину
         desktop_login - логин, который вводит пользователь с экрана"""
 
         select_query = f"SELECT * FROM exercise.user WHERE login = \"{desktop_login}\";"
@@ -95,34 +102,42 @@ class DB:
 
         except Exception as exc:
             print(f'connection failed in function select_user, exception: {exc}')
-            print(exc)
+
 
     def init_user(self, desktop_login: str, desktop_password: str) -> object:
-        """Создаём объект класса юзер, если логин и пароль совпал.
+        """Создаём ОБЪЕКТ класса юзер, если логин и пароль совпал.
         desktop_login - логин, который вводит пользователь с экрана,
         desktop_password - пароль, который вводит пользователь с экрана"""
-
-        selected_user = self.select_user(desktop_login)
-        if desktop_password == selected_user[3]:
-            iduser = selected_user[0]
-            login = selected_user[1]
-            email = selected_user[2]
-            password = selected_user[3]
-            return User(iduser, login, email, password)
-
-    def select_user_char(self, user: object) -> object:
-        """Возвращает характеристики пользователя"""
+        try:
+            selected_user = self.select_user(desktop_login)
+            if desktop_password == selected_user[3]:
+                iduser = selected_user[0]
+                login = selected_user[1]
+                email = selected_user[2]
+                password = selected_user[3]
+                logging.debug(f"user's login is {selected_user[1]}")
+                return User(iduser, login, email, password)
+        except TypeError:
+            logging.warning(f"пользователь не прошёл аутентификацию")
+            return User()
+        except Exception:
+            logging.error(f"неизвестная ошибка при аутентификации пользователя")
+            return User()
+    def select_user_char(self, user: object) -> list:
+        """Возвращает характеристики пользователя ИЗ БД"""
         select_query = f"SELECT * FROM exercise.user_characteristic WHERE iduser = {user.iduser};"
+        logging.info(f"table user.char is connected")
 
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(select_query)
                 # self._connection_close()
                 selected_user_char = cursor.fetchone()
+                self._connection_close()
                 if selected_user_char is None:
                     raise TypeError
                 return selected_user_char
-                # self._connection_close()
+
         except TypeError as exc:
             print(f'пользователь с таким логином не зарегистрирован')
             print('connection failed in function select_user_char')
@@ -131,11 +146,178 @@ class DB:
             print(exc)
 
     def init_user_char(self, user: object) -> object:
-        """Создаём объект характеристик класса юзер"""
+        """Создаём ОБЪЕКТ характеристик класса юзер"""
 
         selected_user_char = self.select_user_char(user)
 
         return User_Char(*selected_user_char)
+
+    def select_сurrent_plan(self, idplan: int) -> list:
+        """Возвращает ИЗ БД текущий план тренировок в виде списка.
+            Возвращает только индексы тренировок
+            На вход принимает индекс нужного плана
+        В самом плане указаны индексы тренировок"""
+
+        select_query = f"SELECT * FROM exercise.plan WHERE idplan = {idplan};"
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                # self._connection_close()
+                selected_plan = cursor.fetchone()
+                if selected_plan is None:
+                    raise TypeError
+                selected_plan=self.clear_selected_plan(list(selected_plan))
+                return selected_plan
+                # self._connection_close()
+        except TypeError as exc:
+            print(f'такого плана тренировок не существует')
+            print('connection failed in function select_current_plan')
+        except Exception as exc:
+            print(f'connection failed in function select_current_plan, exception: {exc}')
+
+    def clear_selected_plan(self, l: list)->list:
+        """Внутренний метод класса.
+        Очищает строчку из таблицы "plan" от индеска строки и всех None.
+        Остаются только номера тренировок"""
+
+        l.pop(0)
+        c = l.count(None)
+        for i in range(0, c):
+            l.remove(None)
+        return l
+
+
+    def select_current_train(self, idtrain: int)->list:
+        """Выводит из БД информацию о текущей тренировке"""
+        select_query = f"SELECT * FROM exercise.train WHERE idtrain = {idtrain};"
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                # self._connection_close()
+                selected_train = cursor.fetchone()
+                if selected_train is None:
+                    raise TypeError
+                selected_plan = self.clear_selected_train(list(selected_train))
+                return selected_plan
+                # self._connection_close()
+        except TypeError as exc:
+            print(f'такой тренировки не существует')
+            print('connection failed in function select_current_train')
+        except Exception as exc:
+            print(f'connection failed in function select_current_plan, exception: {exc}')
+
+    def select_current_ex(self, name: str) -> list:
+        """Выводит из БД информацию о текущем упражнении """
+        select_query = f"SELECT * FROM exercise.exercise_collection WHERE name = '{name}';"
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                # self._connection_close()
+                selected_ex = cursor.fetchone()
+                if selected_ex is None:
+                    raise TypeError
+                selected_plan = list(selected_ex)
+                self._connection_close()
+                return selected_plan
+        except TypeError as exc:
+            print(f'такой тренировки не существует')
+            print('connection failed in function select_current_ex')
+        except Exception as exc:
+            print(f'connection failed in function select_current_plan, exception: {exc}')
+
+    def train_muscule(self, muscule:str)->list:
+        """Выводит список id-тренировок по данной группе мышц"""
+
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(f"SELECT idtrain FROM exercise.train where muscule_type='{muscule}';")
+                train_muscule = cursor.fetchall()
+                if train_muscule is None:
+                    raise TypeError
+                return train_muscule
+                # self._connection_close()
+        except TypeError as exc:
+            logging.warning('тренировки на такую группу мышц не существует')
+            return [1, 2, 3, 4, 5]
+        except Exception as exc:
+            logging.warning('тренировки на такую группу мышц не существует')
+            return [1, 2, 3, 4, 5]
+        # finally:
+        #     self._connection_close()
+
+    def init_ex(self, name:str)->object:
+        """Создает экземпляр класса Exercise"""
+        selected_ex = self.select_current_ex(name)
+
+        return Exercise(*selected_ex)
+
+    def select_all_plan(self)->list:
+        """Выводит из БД все тренировочные планы"""
+        select_query = f"SELECT * FROM exercise.plan;"
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                # self._connection_close()
+                all_plan = cursor.fetchall()
+                if all_plan is None:
+                    raise TypeError
+                #Очищаем полученные вложенные кортежи от None. Преобразуем кортежи в списки. Первым идёт idplan!!!
+                for i in range(len(all_plan)):
+                    all_plan[i]=self.clear_all_plan(list(all_plan[i]))
+                return all_plan
+        except TypeError as exc:
+            print(f'такого плана тренировок не существует')
+            print('connection failed in function select_all_plan')
+        except Exception as exc:
+            print(f'connection failed in function select_all_plan, exception: {exc}')
+
+    def clear_all_plan(self, l: list)->list:
+        """Внутренний метод класса.
+        Очищает строчку из таблицы "plan" от всех None.
+        Остаются только номера тренировок и idplan"""
+
+        c = l.count(None)
+        for i in range(0, c):
+            l.remove(None)
+        return l
+
+    def prepare_plan(self, plan)->list:
+        """Проверяет, сколько тренировок в плане, если меньше 7, заполняет None"""
+        while len(plan)<7:
+            plan.append('NULL')
+        return plan
+    def add_new_plan(self, plan) -> int:
+        """Добавляет новый тренировочный план в таблицу plan.
+        Возвращает idplan последнего добавленного плана"""
+        plan=self.prepare_plan(plan)
+        insert_query = f"INSERT INTO exercise.plan (T1, T2, T3, T4, T5, T6, T7)" \
+                       f" VALUES ({plan[0]}, {plan[1]}, {plan[2]}, {plan[3]}, {plan[4]}, " \
+                       f"{plan[5]}, {plan[6]});"
+
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(insert_query)
+
+                # чтобы сохранить в бд
+                self._connection.commit()
+                print('string is added')
+                return self._connection_lastid(cursor)
+                # print(self._connection_lastid(cursor))
+                # self._connection_close()
+        except Exception as exc:
+            print(f'connection failed in function add_new_plan, exception: {exc}')
+            print(exc)
+
+    def clear_selected_train(self, l: list) -> list:
+        """Внутренний метод класса.
+        Очищает строчку из таблицы "train" от индеска строки, типа мыщц и всех None.
+        Остаются только номера тренировок"""
+        l.pop(0)
+        l.pop(0)
+        c = l.count(None)
+        for i in range(0, c):
+            l.remove(None)
+        return l
 
     def del_user(self, id_user=2) -> None:
         """Добавляет нового пользователя в таблицу user"""
@@ -154,7 +336,7 @@ class DB:
             print(f'connection failed in function del_user, exception: {exc}')
             print(exc)
 
-    def show_bd(self, table_name='user') -> None:
+    def show_bd(self, table_name='user') -> list:
         """Принтует всю БД"""
         try:
             with self._connection.cursor() as cursor:
@@ -203,6 +385,10 @@ class DB:
         return self._connection.close()
 
 
+
+
+
+
 if __name__ == "__main__":
     Tom = User(login='Tom', email='Tom.com', password='1II1')
     Jerry = User(login='Jerry', email='Jeronimo.ru', password='1VV1')
@@ -215,7 +401,7 @@ if __name__ == "__main__":
     # print(db.get_iduser(Tom))
     print(db.show_bd())
     # db.show_bd()
-    # db.add_user_char(id_user=1, user_char=User_Char())
+    # db.add_user_char(id_user=3, user_char=User_Char())
     # print(db.select_user_char(Tom))
     print(db.init_user_char(Tom).all_stat)
     # Tom=db.init_user('Tom', '1II1')

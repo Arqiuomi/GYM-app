@@ -1,4 +1,7 @@
+"""Файл содержит класс User и класс User_Char - пользователь и характеристики пользователя"""
+
 from User_Char_Const import d_mark, d_aim_mult, d_male_mult, d_level_mult
+
 class User():
 
     def __init__(self, iduser='1', login='log', email='email', password='pswrd'):
@@ -15,11 +18,13 @@ class User():
 
 
 class User_Char():
+    #Константы среднестатистического Гэндальфа
     H, W, FAT = 180, 80, 10
 
     def __init__(self, iduser_characteristic='1', iduser='1', aim=1, level=1, days='Вт,Чт,Сб', muscule='всё тело',
                  male='М', height=178.3, weight=100.1, fat=15.5, day_counter=0, mark=0, weight_mult=1.1, number_mult=1.1,
                  current_plan=1):
+
         self.iduser_characteristic = iduser_characteristic
         self.iduser = iduser
         self.aim = aim
@@ -54,6 +59,7 @@ class User_Char():
             self.current_plan
         ]
 
+
     def day_counter(self, train_start: bool) -> int:
         """Подсчитывает число выполненных тренировок за месяц"""
         if train_start():
@@ -62,12 +68,15 @@ class User_Char():
 
             pass
 
+
     def set_mark(self, key: str) -> int:
+        """Добавляет в суммарную оценку юзера текущую оценку тренировки"""
         self.mark += d_mark[key]
         return self.mark
 
 
     def set_weight_mult(self) -> float:
+        """Устанавливает значение множителя веса"""
         p1 = 0.8
         p2 = 0.9
         self.weight_mult = d_male_mult[self.male] * d_level_mult[self.level] * d_aim_mult[self.aim]
@@ -76,6 +85,7 @@ class User_Char():
 
 
     def set_number_mult(self) -> float:
+        """Устанавливает значение множителя повторений"""
         p1 = 0.7
         p2 = 0.8
 
@@ -85,21 +95,26 @@ class User_Char():
         return round(self.number_mult, 2)
 
 
-# from work_with_DB import DB
+
+    def crete_train(self):
+        """Создаёт тренировку из списка упражнений в БД, """
+        pass
 
 
-def train_start(event=True) -> bool:
-    """Пользователь начал тренировку"""
-    if event:
-        return True
-    return False
+    def current_plan(self):
+        """Подбирает оптимальный план по запросам юзера: целевые мышцы, количество дней в неделю"""
 
 
-def mark(key) -> int:
+        pass
+
+
+
+
+
+
+
+def mark(key:str) -> int:
     """Возвращает оценку тренировки"""
-    d = {'трудно': 0,
-         'круто': 1,
-         'легко': 2}
 
-    return d[key]
+    return d_mark[key]
 
