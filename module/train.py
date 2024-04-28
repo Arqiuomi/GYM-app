@@ -1,6 +1,9 @@
-from Work_With_DB import DB
-from Class_Exercise import Exercise
+from work_with_db import DB
+from class_exercise import Exercise
 import logging
+# from class_about_user import User_Char
+# from common_func import counter
+# from common_func import train_start
 
 
 class Plan():
@@ -10,29 +13,25 @@ class Plan():
             day_counter - число дней, которые пользователь тренировался в цикле (информация из БД)
         """
 
-        self.muscule=muscule.split(",")
-        self.days=days.split(",")
+        self.muscule = muscule.split(",")
+        self.days = days.split(",")
         self.day_counter = day_counter
 
-    def day_number(self)->int:
+    def day_number(self) -> int:
         """Подсчитывает, сколько всего тренировочных дней за 35-дневный цикл
         Например, пользователь хочет тренироваться три раза в неделю.
         Значит, за тренировочный цикл он потренируется 35/7*3 = 15 тренировок"""
-        return int(5*len(self.days))
-
+        return int(5 * len(self.days))
 
     def plan_update(self):
         """Проверяет, закончился ли тренировочный цикл по данному плану"""
-        if self.day_counter>self.day_number():
+        if self.day_counter > self.day_number():
             return True
         return False
-
 
     def plan_general(self):
         """Создаёт план из тренировок на всё тело"""
         pass
-
-
 
 
 class Train():
@@ -45,7 +44,6 @@ class Train():
         logging.info(
             f"New Train was created. Train info current_plan={self.current_plan}, day_counter={self.day_counter},"
             f"current_train= {self.current_train}")
-
 
     # Определение тренировки
     def current_train(self) -> int:
@@ -63,7 +61,6 @@ class Train():
             logging.error(f"{exc} in class Train() method current_train(). New value of train is 0")
             print(f'connection failed in function current_train class Train, exception: {exc}')
             return 0
-
 
 
 def counter(func):
@@ -101,7 +98,6 @@ def current_ex_name(db: object, train: object) -> str:
         return 'Жим штанги лёжа'
 
 
-
 def current_ex(ex_name: str, db: object) -> object:
     """Создаёт объект класса Exercise - упражнение из БД"""
     try:
@@ -113,8 +109,9 @@ def current_ex(ex_name: str, db: object) -> object:
 
     except Exception as exc:
         logging.error(f'Def current_ex, error {exc}. Check the connection to the BD.\\ '
-                         f'Check the name in tables exercise_collection and train')
+                      f'Check the name in tables exercise_collection and train')
         return
+
 
 @counter
 def train_start(event=True) -> bool:
@@ -124,17 +121,17 @@ def train_start(event=True) -> bool:
         return False
 
 # Обновление характеристик юзера
-def update_day_counter(user_char: object):
-    """Обновление числа завершённых тренировок в объекте класса характеристики пользователя"""
-    user_char.day_counter = user_char.day_counter+train_start.count
+# def update_day_counter(user_char: object):
+#     """Обновление числа завершённых тренировок в объекте класса характеристики пользователя"""
+#     user_char.day_counter = user_char.day_counter+train_start.count
 
 
 def plan_main():
     # plan = Plan('всё тело', 'Вт,Чт,Сб')
     pass
 
-def train_main():
 
+def train_main():
     # Перед запуском очищаем log
     open('myapp.log', 'w')
     # Задаём настройки Log-файла
@@ -168,21 +165,21 @@ def train_main():
 if __name__ == '__main__':
     # train_main()
     # plan_main()
-    #Эта строка должна быть в файле main, откуда будет запускаться вся программа!!!
+    # Эта строка должна быть в файле main, откуда будет запускаться вся программа!!!
     open('myapp.log', 'w')
     db = DB()
     print(db.show_bd())
     print(db.select_user('Tom'))
 
-    Tom = db.init_user(desktop_login='Tom', desktop_password='1II1')
-    print(Tom.login)
+    tom = db.init_user(desktop_login='Tom', desktop_password='1II1')
+    print(tom.login)
 
-    Tom_char = db.init_user_char(Tom)
+    Tom_char = db.init_user_char(tom)
     print(f' число дней {Tom_char.day_counter}')
     ## тест counter для дней тренировок
     train_start(True)
     print(train_start.count)
-    update_day_counter(Tom_char)
+    Tom_char.update_day_counter()
     print(f' число дней {Tom_char.day_counter}')
     # # train_start(True)
     # print(train_start.count)

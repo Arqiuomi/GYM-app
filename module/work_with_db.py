@@ -2,9 +2,6 @@ import logging
 
 import mysql.connector
 from config import data_base
-from Class_About_User import User
-from Class_About_User import User_Char
-from Class_Exercise import Exercise
 
 logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
                     format="%(module)s def %(funcName)s, %(levelname)s: %(message)s")
@@ -22,6 +19,10 @@ class DB:
         self._db_name = db_name
         self._connection = self.connect()
         # self._cursor = self._connection.cursor()
+
+    @property
+    def connection(self):
+        return self._connection
 
     # def connect(self) -> mysql.connector | None:
     def connect(self) -> mysql.connector:
@@ -65,7 +66,7 @@ class DB:
             print(exc)
 
     def add_user_char(self, id_user: int, user_char: object) -> None:
-        """Создаёт характеристики юзера"""
+        """Добавляет в БД характеристики юзера"""
 
         insert_query = f"INSERT INTO exercise.user_characteristic (iduser, aim, level, days," \
                        f" muscule, male, height, weight, fat, day_counter, mark, weight_mult, number_mult, current_plan) " \
@@ -103,37 +104,15 @@ class DB:
         except Exception as exc:
             print(f'connection failed in function select_user, exception: {exc}')
 
-
-    def init_user(self, desktop_login: str, desktop_password: str) -> object:
-        """Создаём ОБЪЕКТ класса юзер, если логин и пароль совпал.
-        desktop_login - логин, который вводит пользователь с экрана,
-        desktop_password - пароль, который вводит пользователь с экрана"""
-        try:
-            selected_user = self.select_user(desktop_login)
-            if desktop_password == selected_user[3]:
-                iduser = selected_user[0]
-                login = selected_user[1]
-                email = selected_user[2]
-                password = selected_user[3]
-                logging.debug(f"user's login is {selected_user[1]}")
-                return User(iduser, login, email, password)
-        except TypeError:
-            logging.warning(f"пользователь не прошёл аутентификацию")
-            return User()
-        except Exception:
-            logging.error(f"неизвестная ошибка при аутентификации пользователя")
-            return User()
-    def select_user_char(self, user: object) -> list:
+    def select_user_char(self, iduser: int) -> list:
         """Возвращает характеристики пользователя ИЗ БД"""
-        select_query = f"SELECT * FROM exercise.user_characteristic WHERE iduser = {user.iduser};"
+        select_query = f"SELECT * FROM exercise.user_characteristic WHERE iduser = {iduser};"
         logging.info(f"table user.char is connected")
 
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(select_query)
-                # self._connection_close()
                 selected_user_char = cursor.fetchone()
-                self._connection_close()
                 if selected_user_char is None:
                     raise TypeError
                 return selected_user_char
@@ -144,13 +123,6 @@ class DB:
         except Exception as exc:
             print(f'connection failed in function select_user_char, exception: {exc}')
             print(exc)
-
-    def init_user_char(self, user: object) -> object:
-        """Создаём ОБЪЕКТ характеристик класса юзер"""
-
-        selected_user_char = self.select_user_char(user)
-
-        return User_Char(*selected_user_char)
 
     def select_сurrent_plan(self, idplan: int) -> list:
         """Возвращает ИЗ БД текущий план тренировок в виде списка.
@@ -166,7 +138,7 @@ class DB:
                 selected_plan = cursor.fetchone()
                 if selected_plan is None:
                     raise TypeError
-                selected_plan=self.clear_selected_plan(list(selected_plan))
+                selected_plan = self.clear_selected_plan(list(selected_plan))
                 return selected_plan
                 # self._connection_close()
         except TypeError as exc:
@@ -175,7 +147,7 @@ class DB:
         except Exception as exc:
             print(f'connection failed in function select_current_plan, exception: {exc}')
 
-    def clear_selected_plan(self, l: list)->list:
+    def clear_selected_plan(self, l: list) -> list:
         """Внутренний метод класса.
         Очищает строчку из таблицы "plan" от индеска строки и всех None.
         Остаются только номера тренировок"""
@@ -186,8 +158,7 @@ class DB:
             l.remove(None)
         return l
 
-
-    def select_current_train(self, idtrain: int)->list:
+    def select_current_train(self, idtrain: int) -> list:
         """Выводит из БД информацию о текущей тренировке"""
         select_query = f"SELECT * FROM exercise.train WHERE idtrain = {idtrain};"
         try:
@@ -225,7 +196,7 @@ class DB:
         except Exception as exc:
             print(f'connection failed in function select_current_plan, exception: {exc}')
 
-    def train_muscule(self, muscule:str)->list:
+    def train_muscule(self, muscule: str) -> list:
         """Выводит список id-тренировок по данной группе мышц"""
 
         try:
@@ -245,13 +216,7 @@ class DB:
         # finally:
         #     self._connection_close()
 
-    def init_ex(self, name:str)->object:
-        """Создает экземпляр класса Exercise"""
-        selected_ex = self.select_current_ex(name)
-
-        return Exercise(*selected_ex)
-
-    def select_all_plan(self)->list:
+    def select_all_plan(self) -> list:
         """Выводит из БД все тренировочные планы"""
         select_query = f"SELECT * FROM exercise.plan;"
         try:
@@ -261,9 +226,9 @@ class DB:
                 all_plan = cursor.fetchall()
                 if all_plan is None:
                     raise TypeError
-                #Очищаем полученные вложенные кортежи от None. Преобразуем кортежи в списки. Первым идёт idplan!!!
+                # Очищаем полученные вложенные кортежи от None. Преобразуем кортежи в списки. Первым идёт idplan!!!
                 for i in range(len(all_plan)):
-                    all_plan[i]=self.clear_all_plan(list(all_plan[i]))
+                    all_plan[i] = self.clear_all_plan(list(all_plan[i]))
                 return all_plan
         except TypeError as exc:
             print(f'такого плана тренировок не существует')
@@ -271,7 +236,7 @@ class DB:
         except Exception as exc:
             print(f'connection failed in function select_all_plan, exception: {exc}')
 
-    def clear_all_plan(self, l: list)->list:
+    def clear_all_plan(self, l: list) -> list:
         """Внутренний метод класса.
         Очищает строчку из таблицы "plan" от всех None.
         Остаются только номера тренировок и idplan"""
@@ -281,15 +246,16 @@ class DB:
             l.remove(None)
         return l
 
-    def prepare_plan(self, plan)->list:
+    def prepare_plan(self, plan) -> list:
         """Проверяет, сколько тренировок в плане, если меньше 7, заполняет None"""
-        while len(plan)<7:
+        while len(plan) < 7:
             plan.append('NULL')
         return plan
+
     def add_new_plan(self, plan) -> int:
         """Добавляет новый тренировочный план в таблицу plan.
         Возвращает idplan последнего добавленного плана"""
-        plan=self.prepare_plan(plan)
+        plan = self.prepare_plan(plan)
         insert_query = f"INSERT INTO exercise.plan (T1, T2, T3, T4, T5, T6, T7)" \
                        f" VALUES ({plan[0]}, {plan[1]}, {plan[2]}, {plan[3]}, {plan[4]}, " \
                        f"{plan[5]}, {plan[6]});"
@@ -385,13 +351,7 @@ class DB:
         return self._connection.close()
 
 
-
-
-
-
 if __name__ == "__main__":
-    Tom = User(login='Tom', email='Tom.com', password='1II1')
-    Jerry = User(login='Jerry', email='Jeronimo.ru', password='1VV1')
     # ex = Chest_Ex()
     db = DB()
     # db.add_new_ex(ex)
@@ -401,10 +361,5 @@ if __name__ == "__main__":
     # print(db.get_iduser(Tom))
     print(db.show_bd())
     # db.show_bd()
-    # db.add_user_char(id_user=3, user_char=User_Char())
     # print(db.select_user_char(Tom))
-    print(db.init_user_char(Tom).all_stat)
-    # Tom=db.init_user('Tom', '1II1')
-    # print(Tom.email)
 
-# db.add_new_ex(ex)
