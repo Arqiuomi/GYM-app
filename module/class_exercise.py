@@ -1,7 +1,12 @@
 from work_with_db import DB
+import logging
+
+
 
 db = DB()
 
+logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
+                    format="%(module)s def %(funcName)s, %(levelname)s: %(message)s")
 
 class Exercise():
     """Класс упражнение. """
@@ -17,9 +22,24 @@ class Exercise():
         self.weight = weight
 
     def init_ex(db, name: str) -> object:
-        """Создает экземпляр класса Exercise"""
-        selected_ex = db.select_current_ex(name)
-        return Exercise(*selected_ex)
+        """Создает экземпляр класса Exercise
+        Parameters:
+            name - название упражнения, которое будем искать в БД
+        Returns:
+            объект класса Exercise
+        """
+        try:
+            selected_ex = db.select_current_ex(name)
+            return Exercise(*selected_ex)
+
+        except AttributeError:
+            logging.error(f'Def init_ex, error {AttributeError}. Check the select_current_ex() in class DB.')
+            return Exercise(1, 'Жим штанги лёжа', 'грудь', 'description', 'full_description', 5, 80)
+
+        except Exception as exc:
+            logging.error(f'Def init_ex, error {exc}. Check the connection to the BD.\\ '
+                          f'Compare the name in the table exercise_collection and the name of the train')
+            return Exercise(1, 'Жим штанги лёжа', 'грудь', 'description', 'full_description', 5, 80)
 
     def create_personal_ex(self, user_char: object):
         """Создаёт персональное упражнение нашего юзера - учитываются множители веса и кол-ва повторений"""
@@ -28,6 +48,6 @@ class Exercise():
 
 
 # # ПРИМЕР. Создали экземпляр по данным из БД и имени упражнения
-# ex = Exercise.init_ex(db, 'Брусья')
+ex = Exercise.init_ex(db, 'Брусья')
 
 

@@ -133,9 +133,9 @@ class User_Char():
 
         pass
 
-    def update_day_counter(self):
-        """Обновление числа завершённых тренировок в объекте класса характеристики пользователя"""
-        self.day_counter = self.day_counter + train_start.count
+    # def update_day_counter(self):
+    #     """Обновление число завершённых тренировок в объекте класса характеристики пользователя"""
+    #     self.day_counter = self.day_counter + train_start.count
 
 
 def mark(key: str) -> int:

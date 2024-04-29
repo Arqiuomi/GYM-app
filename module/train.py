@@ -1,42 +1,101 @@
 from work_with_db import DB
+from class_about_user import User, User_Char
 from class_exercise import Exercise
+from plan_generate import *
 import logging
-# from class_about_user import User_Char
-# from common_func import counter
-# from common_func import train_start
 
 
 class Plan():
-    def __init__(self, muscule: str, days: str, day_counter: int):
-        """muscule - перечень мышц, на которые пользователь хочет сделать акцент
-            days - Дни, которые пользователь выбрал для тренировки
-            day_counter - число дней, которые пользователь тренировался в цикле (информация из БД)
+    def __init__(self, idplan, T1, T2, T3, T4, T5, T6, T7):
         """
+        Parameters:
+            idplan - индекс тренировочного плана
+            T_i - индекс тренировки в таблице тренировок (может быть None)
+        """
+        self.idplan = idplan
+        self.T1 = T1
+        self.T2 = T2
+        self.T3 = T3
+        self.T4 = T4
+        self.T5 = T5
+        self.T6 = T6
+        self.T7 = T7
 
-        self.muscule = muscule.split(",")
-        self.days = days.split(",")
-        self.day_counter = day_counter
+    def init_plan(db, idpan) -> object:
+        """
+        Создаёт объект класса Plan по данным из БД
 
-    def day_number(self) -> int:
-        """Подсчитывает, сколько всего тренировочных дней за 35-дневный цикл
+        :param db:
+            База данных
+        :param idpan:
+            индекс плана
+        :return :
+            объект класса Plan
+        """
+        selected_plan = db.select_сurrent_plan(idpan)
+        return Plan(*selected_plan)
+
+    def all_stat(self) -> list:
+        """
+        Выводит статистику об объекте Plan
+        :return:
+            свойства объекта ввиде списка
+        """
+        return [
+            self.idplan,
+            self.T1,
+            self.T2,
+            self.T3,
+            self.T4,
+            self.T5,
+            self.T6,
+            self.T7
+        ]
+
+    def clear_plan(self) -> list:
+        """
+            Очищает "plan" от индеска строки и всех None. Остаются только номера тренировок
+         :return:
+            Список индексов тренировок из текущего плана.
+        """
+        l = self.all_stat()
+        l.pop(0)
+        c = l.count(None)
+        for i in range(0, c):
+            l.remove(None)
+        return l
+
+    def train_days(self, user_char: object) -> int:
+        """Подсчитывает, сколько всего тренировочных дней за 35-дневный цикл.
         Например, пользователь хочет тренироваться три раза в неделю.
         Значит, за тренировочный цикл он потренируется 35/7*3 = 15 тренировок"""
-        return int(5 * len(self.days))
+        days = user_char.days.split(",")
+        return int(5 * len(days))
 
-    def plan_update(self):
+    def cycle_check(self, user_char: object):
         """Проверяет, закончился ли тренировочный цикл по данному плану"""
-        if self.day_counter > self.day_number():
+        t_d = self.train_days(user_char)
+        if user_char.day_counter > t_d:
             return True
         return False
 
-    def plan_general(self):
-        """Создаёт план из тренировок на всё тело"""
-        pass
+    def update_plan(self, db: object, user_char: object):
+        """Обновляет тренировочный план"""
+        plan = plan_generate(user_char)
+        cp = check_plan(db, plan)
+        if cp:
+            ip = init_plan(cp, db, plan)
+        else:
+            ip = add_plan(cp, db, plan)
+        update_user_char_plan(ip, user_char, cp, db, plan)
 
 
 class Train():
     def __init__(self, current_plan: list, day_counter: int):
-        """current_plan, day_counter - атрибуты класса характиеристики юзера (информация из БД)"""
+        """
+        Parameters:
+            current_plan - список тренировок из тренировочного плана (результат clear_plan() )
+            day_counter - атрибут класса характиеристики юзера (информация из БД)"""
 
         self.current_plan = current_plan
         self.day_counter = day_counter
@@ -74,10 +133,11 @@ def counter(func):
 
 @counter
 def current_ex_name(db: object, train: object) -> str:
-    """Возвращает НАЗВАНИЕ текущего упражнения
-    ex_number - номер упражнения по ходу тренировки
-    db - экземпляр класса БД
-    current_train - текущая тренировка (из метода current_train класса Train)
+    """
+    Возвращает НАЗВАНИЕ текущего упражнения
+    Parameters:
+        db - экземпляр класса БД
+        train - текущая тренировка (из метода current_train класса Train)
     """
 
     train_l = db.select_current_train(train.current_train)
@@ -98,88 +158,83 @@ def current_ex_name(db: object, train: object) -> str:
         return 'Жим штанги лёжа'
 
 
-def current_ex(ex_name: str, db: object) -> object:
-    """Создаёт объект класса Exercise - упражнение из БД"""
-    try:
-        return db.init_ex(ex_name)
-    except AttributeError:
-
-        logging.error(f'Def current_ex, error {AttributeError}. Check the init_ex in the class DB.')
-        return Exercise(1, 'Жим штанги лёжа', 'грудь', 'description', 'full_description', 5, 80)
-
-    except Exception as exc:
-        logging.error(f'Def current_ex, error {exc}. Check the connection to the BD.\\ '
-                      f'Check the name in tables exercise_collection and train')
-        return
+# def current_ex(ex_name: str, db: object) -> object:
+#     """
+#     Создаёт объект класса Exercise - упражнение из БД
+#     Returns:
+#         объект класса Exercise
+#     """
+#     try:
+#         return db.init_ex(ex_name)
+#     except AttributeError:
+#
+#         logging.error(f'Def current_ex, error {AttributeError}. Check the init_ex in the class DB.')
+#         return Exercise(1, 'Жим штанги лёжа', 'грудь', 'description', 'full_description', 5, 80)
+#
+#     except Exception as exc:
+#         logging.error(f'Def current_ex, error {exc}. Check the connection to the BD.\\ '
+#                       f'Check the name in tables exercise_collection and train')
+#
 
 
 @counter
 def train_start(event=True) -> bool:
-        """Начинается тренировка тренировку"""
-        if event:
-            return True
-        return False
+    """Начинается тренировка тренировку"""
+    if event:
+        return True
+    return False
+
 
 # Обновление характеристик юзера
-# def update_day_counter(user_char: object):
-#     """Обновление числа завершённых тренировок в объекте класса характеристики пользователя"""
-#     user_char.day_counter = user_char.day_counter+train_start.count
+def update_day_counter(user_char: object):
+    """Обновление числа завершённых тренировок в объекте класса характеристики пользователя"""
+    user_char.day_counter = user_char.day_counter + train_start.count
 
 
-def plan_main():
-    # plan = Plan('всё тело', 'Вт,Чт,Сб')
-    pass
+def plan_main(db, user_char):
+    current_plan = Plan.init_plan(db, user_char.current_plan)
+
+    list_of_trains = current_plan.clear_plan()
+
+    if current_plan.cycle_check():
+        current_plan.update_plan(db, user_char)
 
 
-def train_main():
-    # Перед запуском очищаем log
-    open('myapp.log', 'w')
-    # Задаём настройки Log-файла
-    logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
-                        format="%(module)s def %(funcName)s %(levelname)s: %(message)s")
-    db = DB()
-    Tom = db.init_user(desktop_login='Tom', desktop_password='1II1')
-    print(Tom.email)
-    Tom_char = db.init_user_char(Tom)
+def train_main(db, user_char):
 
-    tr = Train(db.select_сurrent_plan(idplan=1), Tom_char.day_counter)
-    # print(db.select_сurrent_plan(idplan=1))
-    # print(Tom_char.day_counter)
-    # print(tr.current_train)
-    # print(db.select_current_train(tr.current_train))
-    # ex_name=current_ex_name(1, db,tr)
+    current_plan = Plan.init_plan(db=db, idpan=user_char.current_plan)
+    list_of_trains = current_plan.clear_plan()
+
+    tr = Train(list_of_trains, user_char.day_counter)
 
     # строка для теста декоратора
     ex_name = current_ex_name(db, tr)
+    # каждый раз новое упражнение
+    ex_name = current_ex_name(db, tr)
+    # каждый раз новое упражнение
+    ex_name = current_ex_name(db, tr)
 
+    # Для тестов
     print(current_ex_name.count)
-
-    ex = current_ex(ex_name, db)
-
+    ex = Exercise.init_ex(db, ex_name)
     print(ex.name)
     print(ex.weight)
-    ex.create_personal_ex(Tom_char)
+    ex.create_personal_ex(tom_char)
     print(ex.weight)
 
 
 if __name__ == '__main__':
-    # train_main()
-    # plan_main()
     # Эта строка должна быть в файле main, откуда будет запускаться вся программа!!!
+    #Создание log-файла
     open('myapp.log', 'w')
+    # Настройки log-файла
+    logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
+                        format="%(module)s def %(funcName)s %(levelname)s: %(message)s")
+    # Для теста
     db = DB()
-    print(db.show_bd())
-    print(db.select_user('Tom'))
+    tom = User.init_user(db, desktop_login='Tom', desktop_password='1II1')
+    tom_char = User_Char.init_user_char(db, tom.iduser)
+    train_main(db, tom_char)
 
-    tom = db.init_user(desktop_login='Tom', desktop_password='1II1')
-    print(tom.login)
 
-    Tom_char = db.init_user_char(tom)
-    print(f' число дней {Tom_char.day_counter}')
-    ## тест counter для дней тренировок
-    train_start(True)
-    print(train_start.count)
-    Tom_char.update_day_counter()
-    print(f' число дней {Tom_char.day_counter}')
-    # # train_start(True)
-    # print(train_start.count)
+

@@ -50,8 +50,14 @@ def check_len_of_plan(plan) -> bool:
 
 
 def plan_generate(user_char: object) -> list:
-    """генерирует набор тренировок для юзера"""
-
+    """
+    Генерирует тренировочный план (набор тренировок) для юзера
+    Parameters:
+        объект свойства юзера
+    Returns:
+        тренировочный план
+        """
+    # Список приоритетных груп мышц
     muscule_list = muscules(user_char)
 
     # Словарь для индексов тренировок
@@ -66,9 +72,6 @@ def plan_generate(user_char: object) -> list:
     return list(plan)
 
 
-
-
-
 def check_plan(db: object, plan: list) -> bool:
     """Проверяет, есть ли тренировочный план c теми же тренировками в БД"""
 
@@ -77,8 +80,6 @@ def check_plan(db: object, plan: list) -> bool:
         if i[1::] == plan:
             return True
     return False
-
-
 
 
 def init_plan(cp: bool, db: object, plan: list) -> int | None:
@@ -113,6 +114,7 @@ def update_user_char_plan(idplan: int, user_char: object, cp: bool, db: object, 
     except ValueError:
         logging.warning(f'индекс такого плана не найден в БД. Попытка создать такой план и добавить в БД')
         add_plan(cp, db, plan)
+        logging.info(f'план добавлен в БД')
     except Exception as exc:
         logging.error(f'не удалось обновить поле current_plan объекта user_char. {exc}')
 

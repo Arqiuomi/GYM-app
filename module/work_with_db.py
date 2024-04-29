@@ -125,38 +125,38 @@ class DB:
             print(exc)
 
     def select_сurrent_plan(self, idplan: int) -> list:
-        """Возвращает ИЗ БД текущий план тренировок в виде списка.
-            Возвращает только индексы тренировок
+        """
+        Возвращает ИЗ БД текущий план тренировок в виде списка.
             На вход принимает индекс нужного плана
-        В самом плане указаны индексы тренировок"""
+        """
 
         select_query = f"SELECT * FROM exercise.plan WHERE idplan = {idplan};"
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(select_query)
-                # self._connection_close()
                 selected_plan = cursor.fetchone()
                 if selected_plan is None:
                     raise TypeError
-                selected_plan = self.clear_selected_plan(list(selected_plan))
+                # Теперь мы возвращаем строку с индексом и всеми None
+                # selected_plan = self.clear_selected_plan(list(selected_plan))
                 return selected_plan
-                # self._connection_close()
-        except TypeError as exc:
+        except TypeError:
             print(f'такого плана тренировок не существует')
             print('connection failed in function select_current_plan')
         except Exception as exc:
             print(f'connection failed in function select_current_plan, exception: {exc}')
 
-    def clear_selected_plan(self, l: list) -> list:
-        """Внутренний метод класса.
-        Очищает строчку из таблицы "plan" от индеска строки и всех None.
-        Остаются только номера тренировок"""
-
-        l.pop(0)
-        c = l.count(None)
-        for i in range(0, c):
-            l.remove(None)
-        return l
+    # Уехал в класс Plan
+    # def clear_selected_plan(self, l: list) -> list:
+    #     """Внутренний метод класса.
+    #     Очищает строчку из таблицы "plan" от индеска строки и всех None.
+    #     Остаются только номера тренировок"""
+    #
+    #     l.pop(0)
+    #     c = l.count(None)
+    #     for i in range(0, c):
+    #         l.remove(None)
+    #     return l
 
     def select_current_train(self, idtrain: int) -> list:
         """Выводит из БД информацию о текущей тренировке"""
