@@ -27,29 +27,26 @@ def train_from_bd(db: object, muscule: str) -> list:
     return l
 
 
-def choose_train_to_input(plan: list, muscule_list: list) -> list:
+def choose_train_to_input(db: object, plan: set, muscule_list: list) -> set:
     """Выбирает случайную тренировку из тренирок из БД (train_from_bd)
     для каждой группы мышц (muscule_list) и добавляет её в план"""
 
     for muscule in muscule_list:
-        plan = list(plan)
-        train_list = train_from_bd(muscule)
+        train_list = train_from_bd(db, muscule)
         # индекс случайной тренировки из списка на данную группу мышц:
         i = random.randint(0, len(train_list) - 1)
-        plan.append(train_list[i])
-        # чтобы тренировки не повторялись, удаляем дубликаты
-        plan = set(plan)
+        plan.add(train_list[i])
     return plan
 
 
-def check_len_of_plan(plan) -> bool:
+def check_len_of_plan(plan: set) -> bool:
     """Возвращает True, если в тренировочном плане больше 4ёх тренировок"""
     if len(plan) < 4:
         return True
     return False
 
 
-def plan_generate(user_char: object) -> list:
+def plan_generate(db: object, user_char: object) -> list:
     """
     Генерирует тренировочный план (набор тренировок) для юзера
     Parameters:
@@ -57,18 +54,18 @@ def plan_generate(user_char: object) -> list:
     Returns:
         тренировочный план
         """
-    # Список приоритетных груп мышц
+    # Список приоритетных груп мышц пользователя
     muscule_list = muscules(user_char)
 
-    # Словарь для индексов тренировок
-    plan = []
+    # Множество (уникальных) индексов тренировок
+    plan = set()
 
-    plan = choose_train_to_input(plan, muscule_list)
+    plan = choose_train_to_input(db, plan, muscule_list)
 
     # Важно, чтобы в тренировочном цикле было не менее 4х различных тренировок
     while check_len_of_plan(plan):
-        plan = choose_train_to_input(plan, muscule_list)
-
+        plan = choose_train_to_input(db, plan, muscule_list)
+    # И вот тут множество становится списком
     return list(plan)
 
 
@@ -123,26 +120,30 @@ def update_user_char_plan(idplan: int, user_char: object, cp: bool, db: object, 
 #тестовая функция для проверки, что функционал работает. Дополнительно нужно импортнуть класс DB и User_Char
 
 # def test ():
-    # db = DB()
-    # # Вместо db_init_user должен быть объект класса user_char, созданный при входе в приложение
-    # tom = db.init_user(desktop_login='Tom', desktop_password='1II1')
-    # # # Глобальная переменная сгенерированного нами плана тренировок
-    # plan=plan_generate(user_char=db.init_user_char(user=tom))
-    # # пробная попытка - ошибки в двойном подключении
-    # # tom_char=db.init_user_char(user=tom)
-    # # print(tom_char.current_plan)
-    # # plan = [5, 6, 7, 8]
-    # char=User_Char()
-    # print(plan)
-    # cp = check_plan(db, plan)
-    # ip = init_plan(cp, db, plan)
-    # ap = add_plan(cp, db, plan)
-    # print(ip)
-    # print(ap)
-    # update_user_char_plan(ip, char, cp, db, plan)
-    # print(char.current_plan)
-    # # print(db.prepare_plan(plan))
-    # # print(db.add_new_plan(plan))
-
+#     from work_with_db import DB
+#     from class_about_user import User_Char
+#     from class_about_user import User
+#     db = DB()
+#     # Вместо db_init_user должен быть объект класса user_char, созданный при входе в приложение
+#     tom = User.init_user(db, desktop_login='Tom', desktop_password='1II1')
+#     # # Глобальная переменная сгенерированного нами плана тренировок
+#     plan=plan_generate(db, user_char=User_Char.init_user_char(db, iduser=tom.iduser))
+#     print(plan)
+#     # пробная попытка - ошибки в двойном подключении
+#     # tom_char=db.init_user_char(user=tom)
+#     # print(tom_char.current_plan)
+#     # plan = [5, 6, 7, 8]
+#     # char=User_Char()
+#     # print(plan)
+#     # cp = check_plan(db, plan)
+#     # ip = init_plan(cp, db, plan)
+#     # ap = add_plan(cp, db, plan)
+#     # print(ip)
+#     # print(ap)
+#     # update_user_char_plan(ip, char, cp, db, plan)
+#     # print(char.current_plan)
+#     # print(db.prepare_plan(plan))
+#     # print(db.add_new_plan(plan))
+#
 # test()
 
