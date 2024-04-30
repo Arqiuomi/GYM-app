@@ -48,6 +48,8 @@ class User():
 class User_Char():
     # Константы среднестатистического Гэндальфа
     H, W, FAT = 180, 80, 10
+    n1 = 0.7
+    n2 = 0.8
 
     def __init__(self, iduser_characteristic='1', iduser='1', aim=1, level=1, days='Вт,Чт,Сб', muscule='всё тело',
                  male='М', height=178.3, weight=100.1, fat=15.5, day_counter=0, mark=0, weight_mult=1.1,
@@ -64,7 +66,7 @@ class User_Char():
         self.weight = weight
         self.fat = fat
         self.day_counter = day_counter
-        self.mark = mark
+        self._mark = mark
         self.weight_mult = weight_mult
         self.number_mult = number_mult
         self.current_plan = current_plan
@@ -101,10 +103,15 @@ class User_Char():
 
             pass
 
-    def set_mark(self, key: str) -> int:
+    @property
+    def mark(self):
+        return self._mark
+
+    @mark.setter
+    def mark(self, key: str) -> int:
         """Добавляет в суммарную оценку юзера текущую оценку тренировки"""
-        self.mark += d_mark[key]
-        return self.mark
+        self._mark += d_mark[key]
+
 
     def set_weight_mult(self) -> float:
         """Устанавливает значение множителя веса"""
@@ -116,12 +123,10 @@ class User_Char():
 
     def set_number_mult(self) -> float:
         """Устанавливает значение множителя повторений"""
-        p1 = 0.7
-        p2 = 0.8
 
         self.number_mult = d_male_mult[self.male] * d_level_mult[self.level] * d_aim_mult[self.aim] * (
-                p1 * self.height / User_Char.H +
-                +p2 * self.weight * (100 - self.fat) / (User_Char.W * (100 - User_Char.FAT)))
+                User_Char.n1 * self.height / User_Char.H +
+                +User_Char.n2 * self.weight * (100 - self.fat) / (User_Char.W * (100 - User_Char.FAT)))
         return round(self.number_mult, 2)
 
     def crete_train(self):
@@ -133,12 +138,8 @@ class User_Char():
 
         pass
 
-    # def update_day_counter(self):
-    #     """Обновление число завершённых тренировок в объекте класса характеристики пользователя"""
-    #     self.day_counter = self.day_counter + train_start.count
-
-
-def mark(key: str) -> int:
-    """Возвращает оценку тренировки"""
-
-    return d_mark[key]
+#Тест декоратора
+# tom= User_Char()
+# print(tom.mark)
+# tom.mark = 'легко'
+# print(tom.mark)
