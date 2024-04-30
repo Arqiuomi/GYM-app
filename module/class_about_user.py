@@ -115,8 +115,7 @@ class User_Char():
 
     def set_weight_mult(self) -> float:
         """Устанавливает значение множителя веса"""
-        p1 = 0.8
-        p2 = 0.9
+
         self.weight_mult = d_male_mult[self.male] * d_level_mult[self.level] * d_aim_mult[self.aim]
 
         return round(self.weight_mult, 2)
