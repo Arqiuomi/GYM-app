@@ -6,6 +6,7 @@ from config import data_base
 logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
                     format="%(module)s def %(funcName)s, %(levelname)s: %(message)s")
 
+
 class DB:
     """Класс для инициализации базы данных и работы с ней
         в методе init присваиваются значения из файла config.py"""
@@ -82,7 +83,7 @@ class DB:
             print(f'connection failed in function add_user_char, exception: {exc}')
             print(exc)
 
-    def select_user(self, desktop_login: str) -> list:
+    def select_user(self, desktop_login: str) -> list | None:
         """Выводит данные юзера ИЗ БД по логину
         desktop_login - логин, который вводит пользователь с экрана"""
 
@@ -96,13 +97,37 @@ class DB:
                 if selected_user is None:
                     raise TypeError
                 return selected_user
-                # self._connection_close()
         except TypeError as exc:
             print(f'пользователь с таким логином не зарегистрирован')
             print('connection failed in function select_user')
-
         except Exception as exc:
             print(f'connection failed in function select_user, exception: {exc}')
+
+    def user_pass(self, desktop_login: str, desktop_password: str) -> bool:
+        """
+        Метод проверяет, совпали ли логин и пароль пользователя
+        с тем, что содержится в БД.
+        :param desktop_login: логин пользователя
+        :param desktop_password: пароль пользователя
+        :return: True, если логин и пароль совпали
+        """
+
+        select_query = f"SELECT * FROM exercise.user WHERE login = \"{desktop_login}\" " \
+                       f"and password = \"{desktop_password}\"  ;"
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(select_query)
+                selected_user = cursor.fetchone()
+                if selected_user is None:
+                    logging.error(f'пользователь с таким логином не зарегистрирован')
+                    raise TypeError
+                return True
+        except TypeError:
+            logging.error('connection failed in function user_pass')
+            return False
+        except Exception as exc:
+            logging.error(f'connection failed in function user_pass, {exc}')
+            return False
 
     def select_user_char(self, iduser: int) -> list:
         """Возвращает характеристики пользователя ИЗ БД"""
@@ -145,18 +170,6 @@ class DB:
             print('connection failed in function select_current_plan')
         except Exception as exc:
             print(f'connection failed in function select_current_plan, exception: {exc}')
-
-    # Уехал в класс Plan
-    # def clear_selected_plan(self, l: list) -> list:
-    #     """Внутренний метод класса.
-    #     Очищает строчку из таблицы "plan" от индеска строки и всех None.
-    #     Остаются только номера тренировок"""
-    #
-    #     l.pop(0)
-    #     c = l.count(None)
-    #     for i in range(0, c):
-    #         l.remove(None)
-    #     return l
 
     def select_current_train(self, idtrain: int) -> list:
         """Выводит из БД информацию о текущей тренировке"""
@@ -362,4 +375,3 @@ if __name__ == "__main__":
     print(db.show_bd())
     # db.show_bd()
     # print(db.select_user_char(Tom))
-
