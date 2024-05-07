@@ -1,7 +1,8 @@
 # from common_func import train_start
 # from init_func import train_start
-from user_char_const import d_mark, d_aim_mult, d_male_mult, d_level_mult
+from module.user_char_const import d_mark, d_aim_mult, d_male_mult, d_level_mult
 import logging
+from module.work_with_db import DB
 
 """Файл содержит класс User и класс User_Char - пользователь и характеристики пользователя"""
 
@@ -11,38 +12,27 @@ logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
 
 class User():
 
-    def __init__(self, iduser: object = '1', login: object = 'log', email: object = 'email',
-                 password: object = 'pswrd') -> object:
+    def __init__(self, iduser='1', login='log', email='email',
+                 password='pswrd') -> object:
         self.iduser = iduser
         self.login = login
         self.email = email
         self.password = password
 
-    def init_user(db: object, desktop_login: str, desktop_password: str) -> object:
-        """Создаём ОБЪЕКТ класса юзер, если логин и пароль совпал.
-        desktop_login - логин, который вводит пользователь с экрана,
-        desktop_password - пароль, который вводит пользователь с экрана"""
+    # def update_property(self, l):
+    #     [self.iduser, self.login, self.email, self.password]=[*l]
+
+    def init_user(self, list):
+        """Обновляем значение полей экземпляра класса,
+        list - список из новых значений полей класса"""
         try:
-            selected_user = db.select_user(desktop_login)
-            if desktop_password == selected_user[3]:
-                iduser = selected_user[0]
-                login = selected_user[1]
-                email = selected_user[2]
-                password = selected_user[3]
-                logging.debug(f"user's login is {selected_user[1]}")
-                return User(iduser, login, email, password)
+            logging.debug(f"user's login is {list[1]}")
+            [self.iduser, self.login, self.email, self.password] = [*list]
+            # self.update_property(list)
         except TypeError:
             logging.warning(f"пользователь не прошёл аутентификацию")
-            return User()
         except Exception:
             logging.error(f"неизвестная ошибка при аутентификации пользователя")
-            return User()
-
-    def iduser(self):
-        # DB.get_iduser(self)
-        pass
-
-    # @set
 
 
 class User_Char():
@@ -112,7 +102,6 @@ class User_Char():
         """Добавляет в суммарную оценку юзера текущую оценку тренировки"""
         self._mark += d_mark[key]
 
-
     def set_weight_mult(self) -> float:
         """Устанавливает значение множителя веса"""
 
@@ -137,7 +126,7 @@ class User_Char():
 
         pass
 
-#Тест декоратора
+# Тест декоратора
 # tom= User_Char()
 # print(tom.mark)
 # tom.mark = 'легко'
