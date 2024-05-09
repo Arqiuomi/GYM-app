@@ -19,8 +19,6 @@ class User():
         self.email = email
         self.password = password
 
-    # def update_property(self, l):
-    #     [self.iduser, self.login, self.email, self.password]=[*l]
 
     def init_user(self, list):
         """Обновляем значение полей экземпляра класса,
@@ -28,7 +26,6 @@ class User():
         try:
             logging.debug(f"user's login is {list[1]}")
             [self.iduser, self.login, self.email, self.password] = [*list]
-            # self.update_property(list)
         except TypeError:
             logging.warning(f"пользователь не прошёл аутентификацию")
         except Exception:

@@ -2,6 +2,8 @@ from kivy.app import App
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
+from controller.login import Login
+from controller.login import Registration
 
 Builder.load_string("""
 <EnterScreen>:
@@ -71,8 +73,7 @@ Builder.load_string("""
                     Button:
                         size_hint: [.5, .7]
                         text: 'Go back'
-                        on_press: root.default_view(groupname='smth'); root.manager.current ="Enter Screen"; root.go_back()
-                         
+                        on_press: root.default_view(groupname='smth'); root.manager.current ="Enter Screen"; root.go_back()                      
 <LevelScreen>:
     AnchorLayout:   
         BoxLayout:
@@ -131,7 +132,6 @@ Builder.load_string("""
                         size_hint: [.5, .7]
                         text: 'Go back'
                         on_press: root.default_view(groupname='smth'); root.manager.current ="Aim Screen"; root.go_back()
-                
 <WeekdayScreen>:    
     AnchorLayout:
         BoxLayout:
@@ -345,53 +345,58 @@ Builder.load_string("""
                     text: 'Зачем Go back?!'
                     on_press: root.go_back()
 """)
-#
-# Button
-# text: 'Print'
-# on_press: root.go()
+
 
 class EnterScreen(Screen):
     pass
 
+
 class LoginScreen(Screen):
+
+    def user_login(self) -> dict:
+        """
+        Передаёт логин и пароль пользователя в контроллер на проверку
+        :return: словарь с логином и паролем, введённым через интерфейс
+        """
+        return {'username': self.ids.username.text, 'password': self.ids.password.text}
+
     def confirm(self):
         """Проверяет введённые данные, в случае успешной проверки входит в аккаунт"""
-        print('sucsess!')
-        # label=Label(text='sucsess')
-        # self.ids.LoginWidgets.add_widget(label)
-        self.ids.confirm.text='sucsess!'
-    #
-    # Button:
-    # size_hint: [1, .25]
-    # text: 'Go back'
-    # on_press: root.default_view();
-    # root.manager.current = "EnterScreen"
+        # print(self.user_login())
+        if Login.check_user(self.user_login()):
+            print('sucsess!')
+            self.ids.confirm.text = 'sucsess!'
+        else:
+            print('try again')
+            self.ids.confirm.text = 'try again'
+
     def default_fill_username(self):
         """Возвращает имя юзера по умолчанию"""
 
-        if self.ids.username.text=='Bob Paris':
-            self.ids.username.text =''
-        elif self.ids.username.text=='':
+        if self.ids.username.text == 'Bob Paris':
+            self.ids.username.text = ''
+        elif self.ids.username.text == '':
             self.ids.username.text = 'Bob Paris'
 
     def default_fill_password(self):
         """Возвращает пароль по умолчанию"""
 
-        if self.ids.password.text=='K@r1':
+        if self.ids.password.text == 'K@r1':
             self.ids.password.password = True
-            self.ids.password.text =''
-        elif self.ids.password.text=='':
+            self.ids.password.text = ''
+        elif self.ids.password.text == '':
             self.ids.password.password = False
             self.ids.password.text = 'K@r1'
 
     def go_back(self):
-        if  self.ids.username.text == '':
+        if self.ids.username.text == '':
             pass
         elif self.ids.password.text == '':
             pass
         else:
             self.default_view()
-            self.manager.current="Enter Screen"
+            self.manager.current = "Enter Screen"
+
     def default_view(self):
         """Возвращает вид по умолчанию"""
 
@@ -400,69 +405,55 @@ class LoginScreen(Screen):
         self.ids.password.text = 'K@r1'
         self.ids.password.password = False
 
-# class AimToggleButton(ToggleButtonBehavior):
-#     def __init__(self, **kwargs):
-#         super(AimToggleButton, self).__init__(**kwargs)
-#     def on_state(self, widget, value):
-#         if value == 'Подсушиться':
-#             print('подсушиться')
-#         elif value == 'Набрать массу':
-#             print('Набрать массу')
-#         elif value == 'Поддерживать тело в тонусе':
-#             print('Поддерживать тело в тонусе')
+
 class AimScreen(Screen):
 
     def confirm_thin(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
-        print('Сбросить массу')
-        self.manager.current='Level Screen'
+        print('подсушиться')
+        Registration.user_char['aim'] = 1
+        self.manager.current = 'Level Screen'
+
     def confirm_mass(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
-        print('Набрать массу')
-        self.manager.current='Level Screen'
+        print('набрать массу')
+        Registration.user_char['aim'] = 2
+        self.manager.current = 'Level Screen'
+
     def confirm_fit(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
-        print('Поддерживать тело в тонусе')
-        self.manager.current='Level Screen'
+        print('поддерживать тело в тонусе')
+        Registration.user_char['aim'] = 3
+        # print(Registration.user_char['aim'])
+        self.manager.current = 'Level Screen'
 
-    def confirm(self, groupname: list):
-        """В зависимости от того, что выбрал пользователь, сохраняет для БД один из вариантов,
-            переводит пользователя на следующую страницу, если что-то выбрано, если не выбрано, ничего не происходит"""
-        # toggle_button = AimToggleButton()
-        # return toggle_button
-        widgets=ToggleButtonBehavior.get_widgets(groupname)
-        for value in widgets:
-            if value.state=='down' and value.text=='Подсушиться':
-                print('подсушиться')
-                # sm.currrent='Level Screen'
-            #     тут он должен перейти на следующую страницу
-            elif value.state=='down' and value.text=='Набрать массу':
-                print('Набрать массу')
-            elif value.state=='down' and value.text == 'Поддерживать тело в тонусе':
-                print('Поддерживать тело в тонусе')
+
     def go_back(self):
         """Очищает выбор пользователя в БД"""
-        pass
+        Registration.user_char['aim'] = 1
+
     def default_view(self, groupname: list):
         """Возвращает вид по умолчанию"""
         widgets = ToggleButtonBehavior.get_widgets(groupname)
         for value in widgets:
             value.state = 'normal'
+
 
 class LevelScreen(Screen):
     def confirm_beginner(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
         print('Новичок')
-        self.manager.current='Weekday Screen'
+        self.manager.current = 'Weekday Screen'
+
     def confirm_intermediate(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
         print('Продолжающий')
-        self.manager.current='Weekday Screen'
+        self.manager.current = 'Weekday Screen'
 
     def confirm_profi(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
         print('Профи')
-        self.manager.current='Weekday Screen'
+        self.manager.current = 'Weekday Screen'
 
     def go_back(self):
         """Очищает выбор пользователя в БД"""
@@ -474,11 +465,12 @@ class LevelScreen(Screen):
         for value in widgets:
             value.state = 'normal'
 
+
 class WeekdayScreen(Screen):
     def __init__(self, name):
         super(Screen, self).__init__()
-        self.list=[0,0,0,0,0,0, 0]
-        self.name=name
+        self.list = [0, 0, 0, 0, 0, 0, 0]
+        self.name = name
 
     def active_mon(self):
         if self.ids.mon.state == 'down':
@@ -487,13 +479,15 @@ class WeekdayScreen(Screen):
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
             return self.list
+
     def active_tue(self):
         if self.ids.tue.state == 'down':
             print('Вт')
-            i=1
+            i = 1
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
             return self.list
+
     def active_wen(self):
         if self.ids.wen.state == 'down':
             print('Ср')
@@ -501,6 +495,7 @@ class WeekdayScreen(Screen):
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
             return self.list
+
     def active_thr(self):
         if self.ids.thr.state == 'down':
             print('Чт')
@@ -508,6 +503,7 @@ class WeekdayScreen(Screen):
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
             return self.list
+
     def active_fr(self):
         if self.ids.fr.state == 'down':
             print('Пт')
@@ -515,6 +511,7 @@ class WeekdayScreen(Screen):
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
             return self.list
+
     def active_sat(self):
         if self.ids.sat.state == 'down':
             print('Сб')
@@ -522,6 +519,7 @@ class WeekdayScreen(Screen):
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
             return self.list
+
     def active_sun(self):
         if self.ids.sun.state == 'down':
             print('Вс')
@@ -529,6 +527,7 @@ class WeekdayScreen(Screen):
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
             return self.list
+
     def confirm(self):
         """Cохраняет cписок из выбранных положений в БД.
         В зависимости от того, что выбрал пользователь, сохраняет для БД один из вариантов,
@@ -542,14 +541,15 @@ class WeekdayScreen(Screen):
             self.check_flag(1)
             print(self.list)
             return self.list
+
     def check_flag(self, flag):
         if flag:
-            self.manager.current="Musculetype Screen"
+            self.manager.current = "Musculetype Screen"
 
     def go_back(self):
         """Очищает выбор пользователя в БД"""
         self.default_view()
-        self.manager.current="Level Screen"
+        self.manager.current = "Level Screen"
 
     def default_view(self):
         """Возвращает вид по умолчанию"""
@@ -563,23 +563,24 @@ class WeekdayScreen(Screen):
         self.ids.sun.state = 'normal'
         self.list = [0, 0, 0, 0, 0, 0, 0]
 
+
 class MusculetypeScreen(Screen):
     def __init__(self, name):
         super(Screen, self).__init__()
-        self.list=[0,0,0,0,0,0]
-        self.name=name
+        self.list = [0, 0, 0, 0, 0, 0]
+        self.name = name
 
     # def cb_create(self):
     #     self.ids.chest.size=
 
-
     def active_chest(self):
         if self.ids.chest.state == 'down':
             print('chest')
-            i=0
-            self.list.insert(i,1)
-            self.list.pop(i+1)
+            i = 0
+            self.list.insert(i, 1)
+            self.list.pop(i + 1)
             return self.list
+
     def active_back(self):
         if self.ids.back.state == 'down':
             print('back')
@@ -587,6 +588,7 @@ class MusculetypeScreen(Screen):
             self.list.insert(i, 2)
             self.list.pop(i + 1)
             return self.list
+
     def active_hand(self):
         if self.ids.hand.state == 'down':
             print('hand')
@@ -594,6 +596,7 @@ class MusculetypeScreen(Screen):
             self.list.insert(i, 3)
             self.list.pop(i + 1)
             return self.list
+
     def active_leg(self):
         if self.ids.leg.state == 'down':
             print('leg')
@@ -601,6 +604,7 @@ class MusculetypeScreen(Screen):
             self.list.insert(i, 4)
             self.list.pop(i + 1)
             return self.list
+
     def active_shoulder(self):
         if self.ids.shoulder.state == 'down':
             print('schoulder')
@@ -608,6 +612,7 @@ class MusculetypeScreen(Screen):
             self.list.insert(i, 5)
             self.list.pop(i + 1)
             return self.list
+
     def active_body(self):
         if self.ids.body.state == 'down':
             print('body')
@@ -615,6 +620,7 @@ class MusculetypeScreen(Screen):
             self.list.insert(i, 6)
             self.list.pop(i + 1)
             return self.list
+
     def confirm(self):
         """Сохраняет cписок из выбранных положений в БД"""
         for i in range(0, self.list.count(0)):
@@ -644,13 +650,14 @@ class MusculetypeScreen(Screen):
         self.ids.leg.state = 'normal'
         self.ids.shoulder.state = 'normal'
         self.ids.body.state = 'normal'
-        self.list=[0,0,0,0,0,0]
+        self.list = [0, 0, 0, 0, 0, 0]
+
 
 class FatScreen(Screen):
 
-
     def label_value(self):
-        self.ids.fat_label.text=str(round(self.ids.fat_slider.value, 1))+'%'
+        self.ids.fat_label.text = str(round(self.ids.fat_slider.value, 1)) + '%'
+
     def confirm(self):
         self.manager.current = 'UserInfo Screen'
         self.default_view()
@@ -663,17 +670,18 @@ class FatScreen(Screen):
 
     def default_view(self):
         """Возвращает вид по умолчанию"""
-        self.ids.fat_slider.value=30
-        self.ids.fat_label.text='30%'
+        self.ids.fat_slider.value = 30
+        self.ids.fat_label.text = '30%'
+
 
 class UserInfoScreen(Screen):
 
     def default_fill_login(self):
         """Возвращает имя юзера по умолчанию"""
 
-        if self.ids.login.text=='Логин':
-            self.ids.login.text =''
-        elif self.ids.login.text=='':
+        if self.ids.login.text == 'Логин':
+            self.ids.login.text = ''
+        elif self.ids.login.text == '':
             self.ids.login.text = 'Логин'
 
     def default_fill_email(self):
@@ -683,28 +691,32 @@ class UserInfoScreen(Screen):
             self.ids.email.text = ''
         elif self.ids.email.text == '':
             self.ids.email.text = 'email'
+
     def default_fill_height(self):
         """Возвращает имя юзера по умолчанию"""
 
-        if self.ids.height.text=='Рост':
-            self.ids.height.text =''
-        elif self.ids.height.text=='':
+        if self.ids.height.text == 'Рост':
+            self.ids.height.text = ''
+        elif self.ids.height.text == '':
             self.ids.height.text = 'Рост'
+
     def default_fill_weight(self):
         """Возвращает имя юзера по умолчанию"""
 
-        if self.ids.weight.text=='Вес':
-            self.ids.weight.text =''
-        elif self.ids.weight.text=='':
+        if self.ids.weight.text == 'Вес':
+            self.ids.weight.text = ''
+        elif self.ids.weight.text == '':
             self.ids.weight.text = 'Вес'
 
     def confirm(self):
         pass
+
     def go_back(self):
         """Очищает выбор пользователя в БД"""
 
         self.default_view()
         self.manager.current = 'Fat Screen'
+
     def default_view(self):
         """Возвращает вид по умолчанию"""
         self.ids.login.text = 'Логин'
@@ -712,6 +724,8 @@ class UserInfoScreen(Screen):
         self.ids.male.text = 'Пол'
         self.ids.height.text = 'Рост'
         self.ids.weight.text = 'Вес'
+
+
 class StartScreen(Screen):
     def confirm(self):
         print('У-ра!')
@@ -719,10 +733,12 @@ class StartScreen(Screen):
     def go_back(self):
         """Очищает выбор пользователя в БД"""
         self.manager.current = 'UserInfo Screen'
+
+
 class TestApp(App):
 
     def build(self):
-        sm=ScreenManager()
+        sm = ScreenManager()
         sm.add_widget(EnterScreen(name='Enter Screen'))
         sm.add_widget(LoginScreen(name='Log in'))
         sm.add_widget(AimScreen(name='Aim Screen'))
@@ -734,5 +750,6 @@ class TestApp(App):
         sm.add_widget(StartScreen(name='Start Screen'))
 
         return sm
-TestApp().run()
 
+
+TestApp().run()
