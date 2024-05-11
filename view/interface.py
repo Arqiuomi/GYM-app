@@ -299,6 +299,18 @@ Builder.load_string("""
                 on_focus: root.default_fill_login()
                 multiline: False
             TextInput:
+                id: new_password
+                text: 'Пароль'
+                on_focus: root.default_fill_password()
+                password: False
+                multiline: False
+            TextInput:
+                id: check_password
+                text: 'Подтверждение пароля'
+                on_focus: root.default_fill_check_password()
+                password: False
+                multiline: False
+            TextInput:
                 id: email
                 text: 'email'                                                
                 on_focus: root.default_fill_email()
@@ -329,7 +341,7 @@ Builder.load_string("""
                         size_hint: [.5, .7]
                         id: confirm
                         text: 'Confirm'
-                        on_press: root.confirm(); root.manager.current ="Start Screen"
+                        on_press: root.confirm()
 <StartScreen>
     AnchorLayout:
         BoxLayout:
@@ -424,9 +436,7 @@ class AimScreen(Screen):
         """Сохраняет информацию в БД, переводит на следующий экран"""
         print('поддерживать тело в тонусе')
         Registration.user_char['aim'] = 3
-        # print(Registration.user_char['aim'])
         self.manager.current = 'Level Screen'
-
 
     def go_back(self):
         """Очищает выбор пользователя в БД"""
@@ -442,22 +452,25 @@ class AimScreen(Screen):
 class LevelScreen(Screen):
     def confirm_beginner(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
-        print('Новичок')
+        print('новичок')
+        Registration.user_char['level'] = 1
         self.manager.current = 'Weekday Screen'
 
     def confirm_intermediate(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
-        print('Продолжающий')
+        print('продолжающий')
+        Registration.user_char['level'] = 2
         self.manager.current = 'Weekday Screen'
 
     def confirm_profi(self):
         """Сохраняет информацию в БД, переводит на следующий экран"""
-        print('Профи')
+        print('профи')
+        Registration.user_char['level'] = 3
         self.manager.current = 'Weekday Screen'
 
     def go_back(self):
         """Очищает выбор пользователя в БД"""
-        pass
+        Registration.user_char['level'] = 1
 
     def default_view(self, groupname: list):
         """Возвращает вид по умолчанию"""
@@ -470,6 +483,7 @@ class WeekdayScreen(Screen):
     def __init__(self, name):
         super(Screen, self).__init__()
         self.list = [0, 0, 0, 0, 0, 0, 0]
+
         self.name = name
 
     def active_mon(self):
@@ -528,27 +542,44 @@ class WeekdayScreen(Screen):
             self.list.pop(i + 1)
             return self.list
 
-    def confirm(self):
-        """Cохраняет cписок из выбранных положений в БД.
-        В зависимости от того, что выбрал пользователь, сохраняет для БД один из вариантов,
-        переводит пользователя на следующую страницу, если что-то выбрано, если не выбрано, ничего не происходит"""
-        for i in range(0, self.list.count(0)):
-            self.list.remove(0)
-
-        if len(self.list) == 0:
-            return None
-        else:
-            self.check_flag(1)
-            print(self.list)
-            return self.list
-
     def check_flag(self, flag):
         if flag:
             self.manager.current = "Musculetype Screen"
 
+    def __clear_list(self):
+        for i in range(0, self.list.count(0)):
+            self.list.remove(0)
+
+    def __create_day_str(self, l: list) -> str:
+        """
+        Создаёт из списка номеров дней строку с краткими наименованиями
+        :param l: список номеров дней
+        :return: строка кратких названий
+        """
+        d = {1: 'Пн', 2: 'Вт', 3: 'Ср', 4: 'Чт', 5: 'Пт', 6: 'Сб', 7: 'Вс'}
+        d_list = []
+        for i in l:
+            d_list.append(d[i])
+        d_str = ','.join(d_list)
+        return d_str
+
+    def confirm(self):
+        """Передаёт cтроку выбранных дней в контроллер.
+        Переводит пользователя на следующую страницу, если что-то выбрано, если не выбрано, остаемся на этой странице"""
+        self.__clear_list()
+        if len(self.list) == 0:
+            Registration.user_char['days'] = 'Вт,Чт,Сб'
+        else:
+            self.check_flag(1)
+            # print(self.list)
+            d_str = self.__create_day_str(self.list)
+            Registration.user_char['days'] = d_str
+            # print(Registration.user_char['days'])
+
     def go_back(self):
         """Очищает выбор пользователя в БД"""
         self.default_view()
+        Registration.user_char['days'] = 'Вт,Чт,Сб'
         self.manager.current = "Level Screen"
 
     def default_view(self):
@@ -621,17 +652,26 @@ class MusculetypeScreen(Screen):
             self.list.pop(i + 1)
             return self.list
 
+    def __muscule_str(self, l):
+        """Преобразует список номеров выбранных групп мышц в строковый тип"""
+
+        d = {1: 'грудь', 2: 'спина', 3: 'руки', 4: 'ноги', 5: 'плечи', 6: 'всё тело'}
+        d_list = []
+        for i in l:
+            d_list.append(d[i])
+        d_str = ','.join(d_list)
+        return d_str
+
     def confirm(self):
         """Сохраняет cписок из выбранных положений в БД"""
         for i in range(0, self.list.count(0)):
             self.list.remove(0)
-
         if len(self.list) == 0:
-            return None
+            Registration.user_char['muscule'] = 'всё тело'
         else:
             self.check_flag(1)
-            print(self.list)
-            return self.list
+            m_str = self.__muscule_str(self.list)
+            Registration.user_char['muscule'] = m_str
 
     def check_flag(self, flag):
         if flag:
@@ -640,6 +680,7 @@ class MusculetypeScreen(Screen):
     def go_back(self):
         """Очищает выбор пользователя в БД"""
         self.default_view()
+        Registration.user_char['muscule'] = 'всё тело'
         self.manager.current = 'Weekday Screen'
 
     def default_view(self):
@@ -659,6 +700,8 @@ class FatScreen(Screen):
         self.ids.fat_label.text = str(round(self.ids.fat_slider.value, 1)) + '%'
 
     def confirm(self):
+        Registration.user_char['fat']=self.ids.fat_label.text
+        print(Registration.user_char['fat'])
         self.manager.current = 'UserInfo Screen'
         self.default_view()
 
@@ -666,6 +709,7 @@ class FatScreen(Screen):
         """Очищает выбор пользователя в БД"""
 
         self.manager.current = 'Musculetype Screen'
+        Registration.user_char['fat'] =15.5
         self.default_view()
 
     def default_view(self):
@@ -684,6 +728,25 @@ class UserInfoScreen(Screen):
         elif self.ids.login.text == '':
             self.ids.login.text = 'Логин'
 
+    def default_fill_password(self):
+        """Возвращает пароль по умолчанию"""
+
+        if self.ids.new_password.text == 'Пароль':
+            self.ids.new_password.password = True
+            self.ids.new_password.text = ''
+        elif self.ids.new_password.text == '':
+            self.ids.new_password.password = False
+            self.ids.new_password.text = 'Пароль'
+
+    def default_fill_check_password(self):
+        """Возвращает в поле  по умолчанию"""
+
+        if self.ids.check_password.text == 'Подтверждение пароля':
+            self.ids.check_password.password = True
+            self.ids.check_password.text = ''
+        elif self.ids.check_password.text == '':
+            self.ids.check_password.password = False
+            self.ids.check_password.text = 'Подтверждение пароля'
     def default_fill_email(self):
         """Возвращает имя юзера по умолчанию"""
 
@@ -708,22 +771,73 @@ class UserInfoScreen(Screen):
         elif self.ids.weight.text == '':
             self.ids.weight.text = 'Вес'
 
+    def __password_control(self)->bool:
+        """
+        Проверяет, совпали ли пароли
+        :return: True, если пароли совпали
+        """
+        if self.ids.new_password.text==self.ids.check_password.text:
+            return True
+        return False
+
+    def __check_filling(self) -> bool:
+        """
+        Проверяет, не остался ли курсор в пустом TextBox
+        :return: True - если  все заполнено корректно
+        """
+        if self.ids.login.text == '':
+            return False
+        elif self.ids.new_password.text == '':
+            return False
+        elif self.ids.check_password.text == '':
+            return False
+        elif self.ids.new_password.text == '':
+            return False
+        elif self.ids.email.text == '':
+            return False
+        elif self.ids.weight.text == '':
+            return False
+        elif self.ids.height.text == '':
+            return False
+        else:
+            return True
+
     def confirm(self):
-        pass
+        Registration.user['login'] = self.ids.login.text
+        Registration.user['email'] = self.ids.email.text
+        Registration.user_char['male'] = self.ids.male.text
+        # Возможна ошибка, что пользователь передал в словарь "Пол" - значение по умолчанию
+        print(Registration.user_char['male'])
+        Registration.user_char['height'] = self.ids.height.text
+        Registration.user_char['weight'] = self.ids.weight.text
+        if self.__check_filling():
+            if self.__password_control():
+                Registration.user['password'] = self.ids.new_password.text
+                self.default_view()
+                self.manager.current = "Start Screen"
+            else:
+                print('Пароли должны сопадать')
+
+
 
     def go_back(self):
         """Очищает выбор пользователя в БД"""
-
-        self.default_view()
-        self.manager.current = 'Fat Screen'
+        if self.__check_filling():
+            self.default_view()
+            self.manager.current = 'Fat Screen'
 
     def default_view(self):
         """Возвращает вид по умолчанию"""
         self.ids.login.text = 'Логин'
         self.ids.email.text = 'email'
+        self.ids.new_password.text = 'Пароль'
+        self.ids.new_password.password = False
+        self.ids.check_password.text = 'Подтверждение пароля'
+        self.ids.check_password.password = False
         self.ids.male.text = 'Пол'
         self.ids.height.text = 'Рост'
         self.ids.weight.text = 'Вес'
+
 
 
 class StartScreen(Screen):

@@ -9,6 +9,7 @@ db = DB()
 
 
 class Login():
+    # Класс для работы со входом пользователя в аккаунт
     @staticmethod
     def user_from_bd(username: str) -> list:
         """
@@ -45,7 +46,15 @@ class Login():
 
 
 class Registration():
+    # Словари, значение в которых заполняются через интерфейс программы
     user_char = {'aim': 1, 'level': 1, 'days': 'Вт,Чт,Сб', 'muscule': 'всё тело', 'male': 'М',
                  'height': 178.3, 'weight': 100.1, 'fat': 15.5}
 
     user = {'login': 'log', 'email': 'email', 'password': 'pswrd'}
+    @classmethod
+    def fill_user_char_string(cls):
+        """
+        Заполняет строку в БД характеристиками из словаря user_char
+        :return:
+        """
+
