@@ -48,13 +48,29 @@ class Login():
 class Registration():
     # Словари, значение в которых заполняются через интерфейс программы
     user_char = {'aim': 1, 'level': 1, 'days': 'Вт,Чт,Сб', 'muscule': 'всё тело', 'male': 'М',
-                 'height': 178.3, 'weight': 100.1, 'fat': 15.5}
+                 'height': 178.3, 'weight': 100.1, 'fat': 15.5, 'day_counter': 0, 'mark': 0, 'weight_mult': 1.1,
+                 'number_mult': 1.1, 'current_plan': 1}
 
     user = {'login': 'log', 'email': 'email', 'password': 'pswrd'}
+
     @classmethod
-    def fill_user_char_string(cls):
+    def fill_user_bd(cls):
         """
         Заполняет строку в БД характеристиками из словаря user_char
         :return:
         """
+        try:
+            id = db.add_new_user_dict(cls.user)
+            db.add_user_char_dict(id, cls.user_char)
+        except Exception as exc:
+            print(f'ошибка в методе fill_user_bd {exc}')
+            logging.error(f'не удалось зарегистрировать пользователя в БД {exc}')
 
+l = [0, 0, 0, 0, 0, 0, 0]
+
+l.insert(0, 1)
+print(l)
+l.pop()
+print(l)
+l.insert(0, 2)
+print(l)

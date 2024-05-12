@@ -47,7 +47,7 @@ class DB:
             logging.error(f'connection failed in function connect, exception: {exc}')
 
     def add_new_user(self, user: object) -> int:
-        """Добавляет нового пользователя в таблицу user.
+        """Добавляет нового пользователя в таблицу user по данным экземпляра класса.
         Возвращает iduser последнего добавленного юзера"""
 
         insert_query = f"INSERT INTO exercise.user (login, email, password)" \
@@ -66,8 +66,26 @@ class DB:
             print(f'connection failed in function add_new_user, exception: {exc}')
             print(exc)
 
-    def add_user_char(self, id_user: int, user_char: object) -> None:
-        """Добавляет в БД характеристики юзера"""
+    def add_new_user_dict(self, user: dict) -> int:
+        """Добавляет нового пользователя в таблицу user по данным словаря.
+        Возвращает iduser последнего добавленного юзера"""
+
+        insert_query = f"INSERT INTO exercise.user (login, email, password)" \
+                       f" VALUES (\"{user['login']}\", \"{user['email']}\", \"{user['password']}\");"
+
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(insert_query)
+                # чтобы сохранить в бд
+                self._connection.commit()
+                print('string is added')
+                return self._connection_lastid(cursor)
+        except Exception as exc:
+            print(f'connection failed in function add_new_user, exception: {exc}')
+            print(exc)
+
+    def add_user_char(self, id_user: int, user_char: object):
+        """Добавляет в БД характеристики юзера из экземпляра класса"""
 
         insert_query = f"INSERT INTO exercise.user_characteristic (iduser, aim, level, days," \
                        f" muscule, male, height, weight, fat, day_counter, mark, weight_mult, number_mult, current_plan) " \
@@ -76,7 +94,24 @@ class DB:
             with self._connection.cursor() as cursor:
                 cursor.execute(insert_query, user_char.all_stat)
                 # чтобы сохранить в бд
-                # self._connection.commit()
+                self._connection.commit()
+                # self._connection_close() #- for what???
+                print('string is added')
+        except Exception as exc:
+            print(f'connection failed in function add_user_char, exception: {exc}')
+            print(exc)
+
+    def add_user_char_dict(self, id_user: int, user_char: dict):
+        """Добавляет в БД характеристики юзера из словаря"""
+
+        insert_query = f"INSERT INTO exercise.user_characteristic (iduser, aim, level, days," \
+                       f" muscule, male, height, weight, fat, day_counter, mark, weight_mult, number_mult, current_plan) " \
+                       f"VALUES ({id_user}, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);"
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(insert_query, list(user_char.values()))
+                # чтобы сохранить в бд
+                self._connection.commit()
                 # self._connection_close() #- for what???
                 print('string is added')
         except Exception as exc:

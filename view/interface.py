@@ -487,60 +487,85 @@ class WeekdayScreen(Screen):
         self.name = name
 
     def active_mon(self):
+        i = 0
         if self.ids.mon.state == 'down':
             print('Пн')
-            i = 0
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i+1)
+        return self.list
 
     def active_tue(self):
+        i = 1
         if self.ids.tue.state == 'down':
             print('Вт')
-            i = 1
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
 
     def active_wen(self):
+        i = 2
         if self.ids.wen.state == 'down':
             print('Ср')
-            i = 2
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
+
 
     def active_thr(self):
+        i = 3
         if self.ids.thr.state == 'down':
             print('Чт')
-            i = 3
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
+
 
     def active_fr(self):
+        i = 4
         if self.ids.fr.state == 'down':
             print('Пт')
-            i = 4
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
+
 
     def active_sat(self):
+        i = 5
         if self.ids.sat.state == 'down':
             print('Сб')
-            i = 5
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
+
 
     def active_sun(self):
+        i = 6
         if self.ids.sun.state == 'down':
             print('Вс')
-            i = 6
             self.list.insert(i, i + 1)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
 
     def check_flag(self, flag):
         if flag:
@@ -605,52 +630,70 @@ class MusculetypeScreen(Screen):
     #     self.ids.chest.size=
 
     def active_chest(self):
+        i = 0
         if self.ids.chest.state == 'down':
             print('chest')
-            i = 0
             self.list.insert(i, 1)
             self.list.pop(i + 1)
-            return self.list
-
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
     def active_back(self):
+        i = 1
         if self.ids.back.state == 'down':
             print('back')
-            i = 1
             self.list.insert(i, 2)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
 
     def active_hand(self):
+        i = 2
         if self.ids.hand.state == 'down':
             print('hand')
-            i = 2
             self.list.insert(i, 3)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
 
     def active_leg(self):
+        i = 3
         if self.ids.leg.state == 'down':
             print('leg')
-            i = 3
             self.list.insert(i, 4)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
 
     def active_shoulder(self):
+        i = 4
         if self.ids.shoulder.state == 'down':
             print('schoulder')
-            i = 4
             self.list.insert(i, 5)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
+
 
     def active_body(self):
+        i = 5
         if self.ids.body.state == 'down':
             print('body')
-            i = 5
             self.list.insert(i, 6)
             self.list.pop(i + 1)
-            return self.list
+        else:
+            self.list.insert(i, 0)
+            self.list.remove(i + 1)
+        return self.list
 
     def __muscule_str(self, l):
         """Преобразует список номеров выбранных групп мышц в строковый тип"""
@@ -700,7 +743,7 @@ class FatScreen(Screen):
         self.ids.fat_label.text = str(round(self.ids.fat_slider.value, 1)) + '%'
 
     def confirm(self):
-        Registration.user_char['fat']=self.ids.fat_label.text
+        Registration.user_char['fat']=self.ids.fat_label.text[:-1]
         print(Registration.user_char['fat'])
         self.manager.current = 'UserInfo Screen'
         self.default_view()
@@ -842,6 +885,7 @@ class UserInfoScreen(Screen):
 
 class StartScreen(Screen):
     def confirm(self):
+        Registration.fill_user_bd()
         print('У-ра!')
 
     def go_back(self):
