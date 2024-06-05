@@ -3,6 +3,8 @@ from kivy.app import App
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
+from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.label import Label
 from controller.exercise_window import Exercise_Screen
 
 Builder.load_string("""
@@ -47,8 +49,19 @@ Builder.load_string("""
                 size_hint: [.2, 1]
                 Button:
                     id: find
-                    on_press: root.find()
                     text: 'Найти'
+                    on_press: root.find(), root.remove_label_text(), root.add_label_text()
+        GridLayout:
+            id: central_grid
+            rows: 2  
+            size_hint: [.2, .8]
+            Label:
+                id: l1
+                text: ''
+            Label:
+                id: l2
+                text: ''
+            
 <Train_Screen>:
     AnchorLayout:
         anchor_x: 'center'           
@@ -100,6 +113,21 @@ class Ex_Screen(Screen):
     def find(self) -> bool:
         print(self.ids.search.text)
         return Exercise_Screen().find_ex(self.ids.search.text)
+
+    def create_label(self, id) -> Label:
+        label = Label()
+        label.id = id
+        label.text = 'print'
+        return label
+
+    def remove_label_text(self):
+        self.ids.l1.text = ''
+        self.ids.l2.text = ''
+
+    def add_label_text(self):
+        # заменить на описание упражнений из БД
+        self.ids.l1.text = 'print'
+        self.ids.l2.text = 'print'
 
     def go_to_train(self):
         self.default_view()
