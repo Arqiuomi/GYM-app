@@ -223,7 +223,7 @@ class DB:
             print(f'такой тренировки не существует')
             print('connection failed in function select_current_train')
         except Exception as exc:
-            print(f'connection failed in function select_current_plan, exception: {exc}')
+            print(f'connection failed in function select_current_train, exception: {exc}')
 
     def select_current_ex(self, name: str) -> list:
         """Выводит из БД информацию о текущем упражнении """
@@ -234,15 +234,16 @@ class DB:
                 # self._connection_close()
                 selected_ex = cursor.fetchone()
                 if selected_ex is None:
+                    self._connection_close()
                     raise TypeError
                 selected_plan = list(selected_ex)
                 self._connection_close()
                 return selected_plan
         except TypeError as exc:
-            print(f'такой тренировки не существует')
+            print(f'такого упражения не существует')
             print('connection failed in function select_current_ex')
         except Exception as exc:
-            print(f'connection failed in function select_current_plan, exception: {exc}')
+            print(f'connection failed in function select_current_ex, exception: {exc}')
 
     def train_muscule(self, muscule: str) -> list:
         """Выводит список id-тренировок по данной группе мышц"""
