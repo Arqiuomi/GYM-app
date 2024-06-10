@@ -50,17 +50,33 @@ Builder.load_string("""
                 Button:
                     id: find
                     text: 'Найти'
-                    on_press: root.find(), root.remove_label_text(), root.add_label_text()
+                    on_press: root.find(), root.remove_label_text(), root.add_descr()
+    AnchorLayout:
+        anchor_x: 'center'           
+        anchor_y: 'center'
         GridLayout:
             id: central_grid
             rows: 2  
-            size_hint: [.2, .8]
-            Label:
-                id: l1
-                text: ''
-            Label:
-                id: l2
-                text: ''
+            size_hint: [.9, .6]
+            ScrollView:
+                do_scroll_x: False
+                Label:
+                    id: l1
+                    text_size: self.size
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(10)
+                    text_size: self.width, None
+                    text: ''
+            ScrollView:
+                do_scroll_x: False
+                Label:
+                    id: l2
+                    text_size: self.size
+                    size_hint_y: None
+                    height: self.texture_size[1] + dp(10)
+
+                    text_size: self.width, None
+                    text: ''
             
 <Train_Screen>:
     AnchorLayout:
@@ -124,10 +140,26 @@ class Ex_Screen(Screen):
         self.ids.l1.text = ''
         self.ids.l2.text = ''
 
-    def add_label_text(self):
-        # заменить на описание упражнений из БД
-        self.ids.l1.text = 'print'
-        self.ids.l2.text = 'print'
+    def add_label_text(self, text_1: str, text_2: str):
+        self.ids.l1.text = text_1
+        self.ids.l2.text = text_2
+
+    def add_descr(self):
+        """
+        Выводит короткое и полное описание упражнения в label_1 и label_2
+        :return:
+        """
+        if Exercise_Screen.find_ex(self.ids.search.text):
+            try:
+                self.add_label_text(Exercise_Screen.take_short_descr(self.ids.search.text),
+                                    Exercise_Screen.take_full_descr(self.ids.search.text))
+            except Exception as exc:
+                self.ids.l1.text = 'Упс... '
+                # Заменить на лог
+                print(f'{exc} в методе take_descr. Проверь методы take_short_decscr() и take_full_decscr()')
+
+        else:
+            self.ids.l1.text = 'К счастью для Вас, мы пока не добавили это упражнение. Оно точно оно?'
 
     def go_to_train(self):
         self.default_view()

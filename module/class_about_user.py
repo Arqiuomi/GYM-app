@@ -4,6 +4,7 @@ from module.user_char_const import d_mark, d_aim_mult, d_male_mult, d_level_mult
 import logging
 from module.work_with_db import DB
 
+
 """Файл содержит класс User и класс User_Char - пользователь и характеристики пользователя"""
 
 logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
@@ -18,18 +19,6 @@ class User():
         self.login = login
         self.email = email
         self.password = password
-
-
-    def init_user(self, list):
-        """Обновляем значение полей экземпляра класса,
-        list - список из новых значений полей класса"""
-        try:
-            logging.debug(f"user's login is {list[1]}")
-            [self.iduser, self.login, self.email, self.password] = [*list]
-        except TypeError:
-            logging.warning(f"пользователь не прошёл аутентификацию")
-        except Exception:
-            logging.error(f"неизвестная ошибка при аутентификации пользователя")
 
 
 class User_Char():
@@ -58,11 +47,6 @@ class User_Char():
         self.number_mult = number_mult
         self.current_plan = current_plan
         self.all_stat = self.all_stat()
-
-    def init_user_char(db, iduser: int) -> object:
-        """Создаём ОБЪЕКТ характеристик класса юзер"""
-        selected_user_char = db.select_user_char(iduser)
-        return User_Char(*selected_user_char)
 
     def all_stat(self) -> list:
         """Все характеристики класса"""

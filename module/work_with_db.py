@@ -237,7 +237,7 @@ class DB:
                     self._connection_close()
                     raise TypeError
                 selected_plan = list(selected_ex)
-                self._connection_close()
+                # self._connection_close()
                 return selected_plan
         except TypeError as exc:
             print(f'такого упражения не существует')

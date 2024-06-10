@@ -207,20 +207,27 @@ def train_main(db, user_char):
 
     tr = Train(list_of_trains, user_char.day_counter)
 
-    # строка для теста декоратора
-    ex_name = current_ex_name(db, tr)
-    # каждый раз новое упражнение
-    ex_name = current_ex_name(db, tr)
-    # каждый раз новое упражнение
-    ex_name = current_ex_name(db, tr)
+    ex = db.select_current_ex(current_ex_name(db, tr))
+    print(ex)
+    print(type(ex))
+    ex = db.select_current_ex(current_ex_name(db, tr))
+    print(type(ex))
+    ex1=Exercise(*ex)
+    # ex2=Exercise(*ex)
+    # ex3=Exercise(*ex)
+
+    # ex1 =Exercise.init_ex(db, current_ex_name(db, tr))
+    # ex2 =Exercise.init_ex(db, current_ex_name(db, tr))
+    # ex3 =Exercise.init_ex(db, current_ex_name(db, tr))
 
     # Для тестов
     print(current_ex_name.count)
-    ex = Exercise.init_ex(db, ex_name)
-    print(ex.name)
-    print(ex.weight)
-    ex.create_personal_ex(tom_char)
-    print(ex.weight)
+    print(ex1.name)
+    # print(ex2.name)
+    # print(ex3.name)
+    print(ex1.weight)
+    ex1.create_personal_ex(tom_char)
+    print(ex1.weight)
 
 
 if __name__ == '__main__':
@@ -232,8 +239,18 @@ if __name__ == '__main__':
                         format="%(module)s def %(funcName)s %(levelname)s: %(message)s")
     # Для теста
     db = DB()
-    tom = User.init_user(db, desktop_login='Tom', desktop_password='1II1')
-    tom_char = User_Char.init_user_char(db, tom.iduser)
+    user_data=db.select_user('Tom')
+    print(user_data)
+    # передаем список, например, из БД, и распаковываем через *
+    tom = User(*user_data)
+
+    print(tom.login)
+    print(tom.password)
+
+    selected_user_char = db.select_user_char(tom.iduser)
+    tom_char = User_Char(selected_user_char)
+    print(tom_char.height)
+
     train_main(db, tom_char)
 
 

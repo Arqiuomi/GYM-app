@@ -22,7 +22,7 @@ class Exercise():
         self.number = number
         self.weight = weight
 
-    def init_ex(db, name: str) -> object:
+    def init_ex(self, db, name: str) -> object:
         """Создает экземпляр класса Exercise
         Parameters:
             name - название упражнения, которое будем искать в БД
@@ -56,7 +56,5 @@ class Exercise():
         self.number = self.number * user_char.number_mult
 
 
-# # ПРИМЕР. Создали экземпляр по данным из БД и имени упражнения
-ex = Exercise.init_ex(db, 'Брусья')
 
 
