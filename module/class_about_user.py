@@ -2,7 +2,7 @@
 # from init_func import train_start
 from module.user_char_const import d_mark, d_aim_mult, d_male_mult, d_level_mult
 import logging
-from module.work_with_db import DB
+
 
 
 """Файл содержит класс User и класс User_Char - пользователь и характеристики пользователя"""

@@ -5,46 +5,10 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.label import Label
-from controller.exercise_window import Exercise_Screen
+from controller.exercise_window import Exercise_Screen, Tr_St_Screen
 from kivy.clock import Clock
 
 Builder.load_string("""
-<Train_Screen>:
-    AnchorLayout:
-        anchor_x: 'center'           
-        anchor_y: 'bottom'
-        BoxLayout:
-            spacing: 15
-            orientation: 'horizontal'
-            size_hint: [1, .15]
-            Button:
-                id: calendar
-                text: 'Cal'
-            Button:
-                id: exercise
-                text: 'Ex'
-                on_press: root.go_to_ex()
-            Button:
-                id: train
-                text: 'Tr'
-            Button:
-                id: statistic
-                text: 'Stat'
-    AnchorLayout:
-        anchor_x: 'center'           
-        anchor_y: 'center'
-        BoxLayout:
-            spacing: 20
-            orientation: 'vertical'
-            size_hint: [.4, .5]
-            Button:
-                name: start
-                id: start
-                text: 'Начать тренировку'
-                on_press: root.go_to_train_start()
-            Button:
-                id: skip
-                text: 'Пропустить тренировку'
 <Ex_Screen>:
     AnchorLayout:
         anchor_x: 'center'           
@@ -115,6 +79,42 @@ Builder.load_string("""
                     text_size: self.width, None
                     text: ''
             
+<Train_Screen>:
+    AnchorLayout:
+        anchor_x: 'center'           
+        anchor_y: 'bottom'
+        BoxLayout:
+            spacing: 15
+            orientation: 'horizontal'
+            size_hint: [1, .15]
+            Button:
+                id: calendar
+                text: 'Cal'
+            Button:
+                id: exercise
+                text: 'Ex'
+                on_press: root.go_to_ex()
+            Button:
+                id: train
+                text: 'Tr'
+            Button:
+                id: statistic
+                text: 'Stat'
+    AnchorLayout:
+        anchor_x: 'center'           
+        anchor_y: 'center'
+        BoxLayout:
+            spacing: 20
+            orientation: 'vertical'
+            size_hint: [.4, .5]
+            Button:
+                name: start
+                id: start
+                text: 'Начать тренировку'
+                on_press: root.go_to_train_start()
+            Button:
+                id: skip
+                text: 'Пропустить тренировку'
 
             
 <Train_Start_Screen>:
@@ -148,9 +148,12 @@ Builder.load_string("""
             Label:
                 id: time_label
                 text: '00:00'
+            Label:
+                id: train_label
+                
             Button:
                 text: 'start'
-                on_press: root.start_stop()
+                on_press: root.start_stop(), root.current_train()
             Button:
                 text: 'Resert'
                 on_press: root.resert()  
@@ -225,6 +228,7 @@ class Train_Screen(Screen):
     def __init__(self, **kwargs):
         super(Train_Screen, self).__init__(**kwargs)
         self.flag = False
+
     def go_to_ex(self):
         self.default_view()
         self.manager.current = 'Ex_Screen'
@@ -243,7 +247,6 @@ class Train_Start_Screen(Screen):
         super(Train_Start_Screen, self).__init__(**kwargs)
         self.seconds = 0
         self.is_counting = False
-
 
     def start_stop(self):
         if self.is_counting:
@@ -266,12 +269,16 @@ class Train_Start_Screen(Screen):
         seconds = str(self.seconds % 60).zfill(2)
         self.ids.time_label.text = f"{minutes}:{seconds}"
 
+    def current_train(self):
+        self.ids.train_label.text = Tr_St_Screen.take_ex_name()
+
     def go_to_ex(self):
         self.manager.current = 'Ex_Screen'
 
     # Опустить флажок, когда тренировка закончится
     # screen_train = self.manager.get_screen('Train_Screen')
     # screen_train.flag = False
+
 
 if __name__ == "__main__":
     class TestApp(App):

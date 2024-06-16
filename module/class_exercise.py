@@ -1,4 +1,4 @@
-from work_with_db import DB
+from module.work_with_db import DB
 import logging
 
 

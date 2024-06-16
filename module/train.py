@@ -1,7 +1,9 @@
-from work_with_db import DB
-from class_about_user import User, User_Char
-from class_exercise import Exercise
-from plan_generate import *
+# Подключаем только для тестов из этого файла
+from module.work_with_db import DB
+from module.class_about_user import User, User_Char
+#
+from module.class_exercise import Exercise
+from module.plan_generate import *
 import logging
 
 
@@ -208,26 +210,22 @@ def train_main(db, user_char):
     tr = Train(list_of_trains, user_char.day_counter)
 
     ex = db.select_current_ex(current_ex_name(db, tr))
-    print(ex)
-    print(type(ex))
-    ex = db.select_current_ex(current_ex_name(db, tr))
-    print(type(ex))
-    ex1=Exercise(*ex)
-    # ex2=Exercise(*ex)
-    # ex3=Exercise(*ex)
-
-    # ex1 =Exercise.init_ex(db, current_ex_name(db, tr))
-    # ex2 =Exercise.init_ex(db, current_ex_name(db, tr))
-    # ex3 =Exercise.init_ex(db, current_ex_name(db, tr))
-
-    # Для тестов
-    print(current_ex_name.count)
-    print(ex1.name)
-    # print(ex2.name)
-    # print(ex3.name)
-    print(ex1.weight)
-    ex1.create_personal_ex(tom_char)
-    print(ex1.weight)
+    ex = Exercise(*ex)
+    train_main.ex_name = ex.name
+    # print(ex)
+    # print(type(ex))
+    # ex = db.select_current_ex(current_ex_name(db, tr))
+    # print(type(ex))
+    # ex1=Exercise(*ex)
+    #
+    # # Для тестов
+    # print(current_ex_name.count)
+    # print(ex1.name)
+    # # print(ex2.name)
+    # # print(ex3.name)
+    # print(ex1.weight)
+    # ex1.create_personal_ex(tom_char)
+    # print(ex1.weight)
 
 
 if __name__ == '__main__':
