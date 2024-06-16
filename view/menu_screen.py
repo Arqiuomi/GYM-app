@@ -6,8 +6,45 @@ from kivy.lang import Builder
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.label import Label
 from controller.exercise_window import Exercise_Screen
+from kivy.clock import Clock
 
 Builder.load_string("""
+<Train_Screen>:
+    AnchorLayout:
+        anchor_x: 'center'           
+        anchor_y: 'bottom'
+        BoxLayout:
+            spacing: 15
+            orientation: 'horizontal'
+            size_hint: [1, .15]
+            Button:
+                id: calendar
+                text: 'Cal'
+            Button:
+                id: exercise
+                text: 'Ex'
+                on_press: root.go_to_ex()
+            Button:
+                id: train
+                text: 'Tr'
+            Button:
+                id: statistic
+                text: 'Stat'
+    AnchorLayout:
+        anchor_x: 'center'           
+        anchor_y: 'center'
+        BoxLayout:
+            spacing: 20
+            orientation: 'vertical'
+            size_hint: [.4, .5]
+            Button:
+                name: start
+                id: start
+                text: 'Начать тренировку'
+                on_press: root.go_to_train_start()
+            Button:
+                id: skip
+                text: 'Пропустить тренировку'
 <Ex_Screen>:
     AnchorLayout:
         anchor_x: 'center'           
@@ -28,7 +65,7 @@ Builder.load_string("""
                 id: train
                 background_normal: 'i_train.png'
                 background_down:'i_train2.jpg'
-                on_press: root.go_to_train()
+                on_press: root.default_view(), root.go_to_train(), 
             Button:
                 id: statistic
                 background_normal: 'i_stat.png'
@@ -78,9 +115,11 @@ Builder.load_string("""
                     text_size: self.width, None
                     text: ''
             
-<Train_Screen>:
+
+            
+<Train_Start_Screen>:
     AnchorLayout:
-        anchor_x: 'center'           
+        anchor_x: 'center'
         anchor_y: 'bottom'
         BoxLayout:
             spacing: 15
@@ -100,18 +139,21 @@ Builder.load_string("""
                 id: statistic
                 text: 'Stat'
     AnchorLayout:
-        anchor_x: 'center'           
+        anchor_x: 'center'
         anchor_y: 'center'
         BoxLayout:
             spacing: 20
             orientation: 'vertical'
             size_hint: [.4, .5]
+            Label:
+                id: time_label
+                text: '00:00'
             Button:
-                id: start
-                text: 'Начать тренировку'
+                text: 'start'
+                on_press: root.start_stop()
             Button:
-                id: skip
-                text: 'Пропустить тренировку'
+                text: 'Resert'
+                on_press: root.resert()  
 
 """)
 
@@ -163,28 +205,81 @@ class Ex_Screen(Screen):
 
     def go_to_train(self):
         self.default_view()
-        self.manager.current = 'Train_Screen'
+        screen_train = self.manager.get_screen('Train_Screen')
+        if screen_train.flag:
+            self.manager.current = 'Train_Start_Screen'
+        else:
+            self.manager.current = 'Train_Screen'
 
     def default_view(self):
-        self.ids.search.text == 'Введите название упражнения'
+        self.ids.search.text = 'Введите название упражнения'
+        self.remove_label_text()
+
+
+class TrainApp(App):
+    def build(self):
+        return Train_Start_Screen()
 
 
 class Train_Screen(Screen):
+    def __init__(self, **kwargs):
+        super(Train_Screen, self).__init__(**kwargs)
+        self.flag = False
     def go_to_ex(self):
         self.default_view()
         self.manager.current = 'Ex_Screen'
+
+    def go_to_train_start(self):
+        self.default_view()
+        self.flag = True
+        self.manager.current = 'Train_Start_Screen'
 
     def default_view(self):
         pass
 
 
+class Train_Start_Screen(Screen):
+    def __init__(self, **kwargs):
+        super(Train_Start_Screen, self).__init__(**kwargs)
+        self.seconds = 0
+        self.is_counting = False
+
+
+    def start_stop(self):
+        if self.is_counting:
+            Clock.unschedule(self.update_time)
+            self.is_counting = False
+        else:
+            self.is_counting = True
+            Clock.schedule_interval(self.update_time, 1)
+
+    def resert(self):
+        self.seconds = 0
+        self.ids.time_label.text = "00:00"
+        if self.is_counting:
+            Clock.unschedule(self.update_time)
+            self.is_counting = False
+
+    def update_time(self, *args):
+        self.seconds += 1
+        minutes = str(self.seconds // 60).zfill(2)
+        seconds = str(self.seconds % 60).zfill(2)
+        self.ids.time_label.text = f"{minutes}:{seconds}"
+
+    def go_to_ex(self):
+        self.manager.current = 'Ex_Screen'
+
+    # Опустить флажок, когда тренировка закончится
+    # screen_train = self.manager.get_screen('Train_Screen')
+    # screen_train.flag = False
+
 if __name__ == "__main__":
     class TestApp(App):
         def build(self):
             sm = ScreenManager()
-            sm.add_widget(Ex_Screen(name='Ex_Screen'))
             sm.add_widget(Train_Screen(name='Train_Screen'))
-
+            sm.add_widget(Train_Start_Screen(name='Train_Start_Screen'))
+            sm.add_widget(Ex_Screen(name='Ex_Screen'))
             return sm
 
 

@@ -18,21 +18,22 @@ class Exercise_Screen():
         return False
 
     @staticmethod
-    def take_short_descr(name: str) -> str:
+    def take_short_descr(name: str) -> str | None:
         """
-
         :param name: название упражнения как в БД
         :return: короткое описание упражнения из БД
         """
         return db.select_current_ex(name)[3]
 
     @staticmethod
-    def take_full_descr(name: str) -> str:
+    def take_full_descr(name: str) -> str | None:
         """
         :param name: название упражнения как в БД
         :return: развернутое описание упражнения из БД
         """
         return db.select_current_ex(name)[4]
+
+
 
 
 # print(Exercise_Screen.take_full_descr('Жим штанги лёжа'))
