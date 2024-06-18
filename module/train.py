@@ -208,10 +208,13 @@ def train_main(db, user_char):
     list_of_trains = current_plan.clear_plan()
 
     tr = Train(list_of_trains, user_char.day_counter)
+    train_list = db.select_current_train(tr.current_train)
 
     ex = db.select_current_ex(current_ex_name(db, tr))
     ex = Exercise(*ex)
     train_main.ex_name = ex.name
+    train_main.number_of_ex = len(train_list)
+
     # print(ex)
     # print(type(ex))
     # ex = db.select_current_ex(current_ex_name(db, tr))

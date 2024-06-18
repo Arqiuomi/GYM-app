@@ -4,6 +4,7 @@ from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.uix.button import Button
 from kivy.uix.label import Label
 from controller.exercise_window import Exercise_Screen, Tr_St_Screen
 from kivy.clock import Clock
@@ -150,10 +151,12 @@ Builder.load_string("""
                 text: '00:00'
             Label:
                 id: train_label
-                
+            GridLayout:
+                id: grid_ex_number
+                cols: root.number_of_ex()
             Button:
                 text: 'start'
-                on_press: root.start_stop(), root.current_train()
+                on_press: root.start_stop(), root.current_train(), root.create_ex_number_label()
             Button:
                 text: 'Resert'
                 on_press: root.resert()  
@@ -247,6 +250,17 @@ class Train_Start_Screen(Screen):
         super(Train_Start_Screen, self).__init__(**kwargs)
         self.seconds = 0
         self.is_counting = False
+        self.new_train = True
+        # self.number_of_ex = self.number_of_current_ex()
+
+    # @property
+    # def number_of_current_ex(self):
+    #     return self.number_of_ex
+    #
+    #
+    # @number_of_current_ex.getter
+    # def number_of_current_ex(self):
+    #     return Tr_St_Screen.take_number_of_ex()
 
     def start_stop(self):
         if self.is_counting:
@@ -262,7 +276,13 @@ class Train_Start_Screen(Screen):
         if self.is_counting:
             Clock.unschedule(self.update_time)
             self.is_counting = False
+        self.new_train = True
+        self.clear_ex_number_label()
 
+    def clear_ex_number_label(self):
+        number = self.number_of_ex()
+        layout = self.ids.grid_ex_number
+        layout.clear_widgets()
     def update_time(self, *args):
         self.seconds += 1
         minutes = str(self.seconds // 60).zfill(2)
@@ -271,6 +291,18 @@ class Train_Start_Screen(Screen):
 
     def current_train(self):
         self.ids.train_label.text = Tr_St_Screen.take_ex_name()
+
+    def number_of_ex(self):
+        """Принимает и возвращает количество упражнений в текущей тренировке из контроллера"""
+        return Tr_St_Screen.take_number_of_ex()
+
+    def create_ex_number_label(self):
+        if self.new_train:
+            number = self.number_of_ex()
+            layout = self.ids.grid_ex_number
+            for i in range(1, number + 1):
+                layout.add_widget(Label(text=f'{i}'))
+            self.new_train = False
 
     def go_to_ex(self):
         self.manager.current = 'Ex_Screen'

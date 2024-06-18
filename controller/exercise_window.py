@@ -3,6 +3,7 @@ from module.work_with_db import DB
 import logging
 from module.class_about_user import User, User_Char
 from module.train import train_main
+
 db = DB()
 user_char = User_Char()
 
@@ -38,15 +39,25 @@ class Exercise_Screen():
 
 class Tr_St_Screen():
     @staticmethod
-    def take_ex_name()->str:
+    def take_ex_name() -> str:
         """Возвращает название упражнения.
         train_main - основная функция, запускаемая при начале тренировки"""
         train_main(db, user_char)
         return train_main.ex_name
 
+    @staticmethod
+    def take_number_of_ex() -> int:
+        """
+
+        :return: Число упражнений в текущей тренировке
+        """
+        train_main(db, user_char)
+        return train_main.number_of_ex
+
+
 # print(Exercise_Screen.take_full_descr('Жим штанги лёжа'))
 # print(Exercise_Screen.find_ex('Жим штанги лёжа'))
 
-tr=Tr_St_Screen()
+tr = Tr_St_Screen()
 
-print(tr.take_ex_name())
+print(tr.take_number_of_ex())
