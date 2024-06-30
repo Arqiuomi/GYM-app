@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 from module.work_with_db import DB
 import logging
 from module.class_about_user import User, User_Char
@@ -54,10 +55,25 @@ class Tr_St_Screen():
         train_main(db, user_char)
         return train_main.number_of_ex
 
+    @staticmethod
+    def take_ex_info()->list:
+        """
+
+        :return: возвращает список с весом и числом повторений
+        """
+        train_main(db, user_char)
+        return [train_main.weight, train_main.number]
+
+    @staticmethod
+    def train_finish():
+        # передаёт в модуль, что тренировка завершена.
+        # Возможно, понадобиться ещё 1 файлик контроллера.
+        pass
 
 # print(Exercise_Screen.take_full_descr('Жим штанги лёжа'))
 # print(Exercise_Screen.find_ex('Жим штанги лёжа'))
 
-tr = Tr_St_Screen()
-
-print(tr.take_number_of_ex())
+# tr = Tr_St_Screen()
+#
+# print(tr.take_number_of_ex())
+# print(tr.take_ex_info())

@@ -203,7 +203,12 @@ def plan_main(db, user_char):
 
 
 def train_main(db, user_char):
-
+    """
+    Основная функция для запуска и работы с тренировками
+    :param db: база данных
+    :param user_char: характеристика пользователя
+    :return:
+    """
     current_plan = Plan.init_plan(db=db, idpan=user_char.current_plan)
     list_of_trains = current_plan.clear_plan()
 
@@ -212,9 +217,15 @@ def train_main(db, user_char):
 
     ex = db.select_current_ex(current_ex_name(db, tr))
     ex = Exercise(*ex)
-    train_main.ex_name = ex.name
-    train_main.number_of_ex = len(train_list)
 
+    # Создаёмаём персональные веса и повторения
+    ex.create_personal_ex(user_char)
+    # Атрибуты объекта функции для передачи в контроллер
+    train_main.ex_name = ex.name
+    train_main.number = ex.number
+    train_main.weight = ex.weight
+
+    train_main.number_of_ex = len(train_list)
     # print(ex)
     # print(type(ex))
     # ex = db.select_current_ex(current_ex_name(db, tr))

@@ -4,6 +4,8 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from controller.login import Login
 from controller.login import Registration
+from menu_screen import MenuApp
+
 
 Builder.load_string("""
 <EnterScreen>:
@@ -378,6 +380,11 @@ class LoginScreen(Screen):
         if Login.check_user(self.user_login()):
             print('sucsess!')
             self.ids.confirm.text = 'sucsess!'
+            # my_app.stop()
+            App.get_running_app().stop()
+            MenuApp().run()
+
+
         else:
             print('try again')
             self.ids.confirm.text = 'try again'
@@ -886,6 +893,7 @@ class UserInfoScreen(Screen):
 class StartScreen(Screen):
     def confirm(self):
         Registration.fill_user_bd()
+        # self.manager.current = "Enter Screen"
         print('У-ра!')
 
     def go_back(self):
@@ -909,5 +917,6 @@ class TestApp(App):
 
         return sm
 
-
 TestApp().run()
+# my_app=TestApp()
+# my_app.run()
