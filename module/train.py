@@ -160,6 +160,9 @@ def current_ex_name(db: object, train: object) -> str:
         return 'Жим штанги лёжа'
 
 
+
+
+
 # def current_ex(ex_name: str, db: object) -> object:
 #     """
 #     Создаёт объект класса Exercise - упражнение из БД
@@ -226,6 +229,9 @@ def train_main(db, user_char):
     train_main.weight = ex.weight
 
     train_main.number_of_ex = len(train_list)
+
+    # Обнуляем декоратор
+    # ex.co
     # print(ex)
     # print(type(ex))
     # ex = db.select_current_ex(current_ex_name(db, tr))
