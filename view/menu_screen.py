@@ -245,7 +245,8 @@ class Train_Screen(Screen):
         self.default_view()
         self.flag = True
         self.manager.current = 'Train_Start_Screen'
-
+        # Обнуляем секунды при переходе в активный режим тренировки
+        self.manager.get_screen('Train_Start_Screen').zero_seconds()
     def default_view(self):
         pass
 
@@ -267,6 +268,11 @@ class Train_Start_Screen(Screen):
     #         self.is_counting = False
     #     else:
     #         self.is_counting = True
+
+    def zero_seconds(self):
+        """Обнуляет секунды при переходе на экран активного режима тренировки"""
+        self.seconds = 0
+        pass
 
     def resert(self):
         self.seconds = 0
