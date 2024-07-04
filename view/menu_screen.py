@@ -159,7 +159,7 @@ Builder.load_string("""
                 cols: 3
             Button:
                 text: 'start'
-                on_press: root.current_train(), root.create_labels()
+                on_press: root.call_next_ex(), root.current_train(), root.create_labels()
             Button:
                 text: 'Resert'
                 on_press: root.resert()  
@@ -256,10 +256,12 @@ class Train_Start_Screen(Screen):
         super(Train_Start_Screen, self).__init__(**kwargs)
         self.seconds = 0
         self.new_train = True
-        # self.ex_inform = self.take_ex_inform()
         self.time()
         self.number_of_ex = self.take_number_of_ex()
+        self.current_train()
+        self.create_labels()
 
+    # Время
     def time(self):
         Clock.schedule_interval(self.update_time, 1)
 
@@ -274,6 +276,12 @@ class Train_Start_Screen(Screen):
         self.seconds = 0
         pass
 
+    def update_time(self, *args):
+        self.seconds += 1
+        minutes = str(self.seconds // 60).zfill(2)
+        seconds = str(self.seconds % 60).zfill(2)
+        self.ids.time_label.text = f"{minutes}:{seconds}"
+    #  Чистка виджетов
     def resert(self):
         self.seconds = 0
         self.ids.time_label.text = "00:00"
@@ -289,27 +297,12 @@ class Train_Start_Screen(Screen):
         layout = self.ids.active_train_mode
         layout.remove_widget(layout.children[0])
 
-    def update_time(self, *args):
-        self.seconds += 1
-        minutes = str(self.seconds // 60).zfill(2)
-        seconds = str(self.seconds % 60).zfill(2)
-        self.ids.time_label.text = f"{minutes}:{seconds}"
 
-    def current_train(self):
-        """Выводит в label название упражнения"""
-        self.ids.train_label.text = Tr_St_Screen.take_ex_name()
-
+    # Параметры тренировки
     @staticmethod
     def take_number_of_ex():
         """Принимает и возвращает количество упражнений в текущей тренировке из контроллера"""
         return Tr_St_Screen.take_number_of_ex()
-
-    def create_labels(self):
-        layout = self.ids.grid_ex_number
-        layout.cols = self.number_of_ex
-        self.create_ex_number_label()
-        self.create_ex_info()
-        self.new_train = False
 
     def create_ex_number_label(self):
         """Создаёт lables с номерами упражнений"""
@@ -317,6 +310,14 @@ class Train_Start_Screen(Screen):
             layout = self.ids.grid_ex_number
             for i in range(1, self.number_of_ex + 1):
                 layout.add_widget(Label(text=f'{i}'))
+    @staticmethod
+    def call_next_ex():
+        """Вызывает следующее упражнение"""
+        Tr_St_Screen.call_train()
+
+    def current_train(self):
+        """Выводит в label название упражнения"""
+        self.ids.train_label.text = Tr_St_Screen.take_ex_name()
 
     @staticmethod
     def take_ex_inform():
@@ -325,6 +326,13 @@ class Train_Start_Screen(Screen):
     def create_ex_info(self):
         ex_inform = self.take_ex_inform()
         self.ids.ex_info_label.text = f' Вес: {ex_inform[0]} \n \n Повторы: {ex_inform[1]}'
+
+    def create_labels(self):
+        layout = self.ids.grid_ex_number
+        layout.cols = self.number_of_ex
+        self.create_ex_number_label()
+        self.create_ex_info()
+        self.new_train = False
     def go_to_ex(self):
         self.manager.current = 'Ex_Screen'
 
