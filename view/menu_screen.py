@@ -159,13 +159,30 @@ Builder.load_string("""
                 cols: 3
             Button:
                 text: 'start'
-                on_press: root.call_next_ex(), root.current_train(), root.create_labels()
-            Button:
-                text: 'Resert'
-                on_press: root.resert()  
+                on_press: root.call_next_ex(), root.current_train(), root.create_labels()  
             Label:
                 id: ex_info_label
-
+<Train_Finish_Screen>:
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'bottom'
+        BoxLayout:
+            spacing: 15
+            orientation: 'horizontal'
+            size_hint: [1, .15]
+            Button:
+                id: calendar
+                text: 'Cal'
+            Button:
+                id: exercise
+                text: 'Ex'
+                on_press: root.go_to_ex()
+            Button:
+                id: train
+                text: 'Tr'
+            Button:
+                id: statistic
+                text: 'Stat'
 """)
 
 
@@ -281,13 +298,16 @@ class Train_Start_Screen(Screen):
         minutes = str(self.seconds // 60).zfill(2)
         seconds = str(self.seconds % 60).zfill(2)
         self.ids.time_label.text = f"{minutes}:{seconds}"
+
     #  Чистка виджетов
     def resert(self):
+        # future default_view
         self.seconds = 0
         self.ids.time_label.text = "00:00"
         Clock.unschedule(self.update_time)
-        self.clear_ex_number_label()
-        self.clear_ex_info_label()
+        # important!
+        # self.clear_ex_number_label()
+        # self.clear_ex_info_label()
 
     def clear_ex_number_label(self):
         layout = self.ids.grid_ex_number
@@ -296,7 +316,6 @@ class Train_Start_Screen(Screen):
     def clear_ex_info_label(self):
         layout = self.ids.active_train_mode
         layout.remove_widget(layout.children[0])
-
 
     # Параметры тренировки
     @staticmethod
@@ -310,10 +329,20 @@ class Train_Start_Screen(Screen):
             layout = self.ids.grid_ex_number
             for i in range(1, self.number_of_ex + 1):
                 layout.add_widget(Label(text=f'{i}'))
-    @staticmethod
-    def call_next_ex():
+
+    def check_ex_counter(self) -> bool:
+        if Tr_St_Screen.ex_counter() < self.take_number_of_ex():
+            return True
+        return False
+
+    def call_next_ex(self):
         """Вызывает следующее упражнение"""
-        Tr_St_Screen.call_train()
+        if self.check_ex_counter():
+            Tr_St_Screen.call_train()
+        else:
+            self.resert()
+            self.manager.get_screen('Train_Screen').flag = False
+            self.manager.current = 'Train_Finish_Screen'
 
     def current_train(self):
         """Выводит в label название упражнения"""
@@ -333,12 +362,25 @@ class Train_Start_Screen(Screen):
         self.create_ex_number_label()
         self.create_ex_info()
         self.new_train = False
+
     def go_to_ex(self):
         self.manager.current = 'Ex_Screen'
 
     # Опустить флажок, когда тренировка закончится
     # screen_train = self.manager.get_screen('Train_Screen')
     # screen_train.flag = False
+
+class Train_Finish_Screen(Screen):
+
+    def go_to_train(self):
+        self.default_view()
+        self.manager.current = 'Train_Screen'
+
+    def go_to_ex(self):
+        self.manager.current = 'Ex_Screen'
+
+    def default_view(self):
+        pass
 
 
 class MenuApp(App):
@@ -347,6 +389,7 @@ class MenuApp(App):
         sm.add_widget(Train_Screen(name='Train_Screen'))
         sm.add_widget(Train_Start_Screen(name='Train_Start_Screen'))
         sm.add_widget(Ex_Screen(name='Ex_Screen'))
+        sm.add_widget(Train_Finish_Screen(name='Train_Finish_Screen'))
         return sm
 
 

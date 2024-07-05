@@ -4,6 +4,7 @@ from module.work_with_db import DB
 import logging
 from module.class_about_user import User, User_Char
 from module.train import train_main
+from module.train import current_ex_name
 
 db = DB()
 user_char = User_Char()
@@ -58,6 +59,11 @@ class Tr_St_Screen():
     def call_train():
         """Вызывает функцию тренировки"""
         return train_main(db, user_char)
+
+    @staticmethod
+    def ex_counter():
+        return current_ex_name.count
+
     @staticmethod
     def take_ex_name() -> str:
         """Возвращает название упражнения.
