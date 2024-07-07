@@ -4,8 +4,11 @@ from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.screenmanager import ScreenManager
 from kivy.uix.screenmanager import Screen
 from kivy.lang import Builder
+from kivy.graphics import Color, Rectangle
+from kivy.utils import get_color_from_hex
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from controller.exercise_window import Exercise_Screen
 from controller.exercise_window import Tr_St_Screen
@@ -159,7 +162,7 @@ Builder.load_string("""
                 cols: 3
             Button:
                 text: 'start'
-                on_press: root.call_next_ex(), root.current_train(), root.create_labels()  
+                on_press: root.call_next_ex(), root.current_train(), root.create_labels(), root.current_number()
             Label:
                 id: ex_info_label
 <Train_Finish_Screen>:
@@ -264,6 +267,7 @@ class Train_Screen(Screen):
         self.manager.current = 'Train_Start_Screen'
         # Обнуляем секунды при переходе в активный режим тренировки
         self.manager.get_screen('Train_Start_Screen').zero_seconds()
+
     def default_view(self):
         pass
 
@@ -328,7 +332,25 @@ class Train_Start_Screen(Screen):
         if self.new_train:
             layout = self.ids.grid_ex_number
             for i in range(1, self.number_of_ex + 1):
-                layout.add_widget(Label(text=f'{i}'))
+                # disabled делает кнопки неактивными
+                button = Button(text=f'{i}', color=(1, 1, 1, 1),
+                                background_color=(182 / 255, 66 / 255, 245 / 255, 1), disabled=True)
+                layout.add_widget(button)
+                # Делает активным 1ую кнопку
+                button = layout.children[len(layout.children) - Tr_St_Screen.ex_counter()]
+                button.state = 'down'
+                # Устанавливаем белый цвет текста
+                button.disabled_color = get_color_from_hex('#FFFFFF')
+                # # Отключаем фон для кнопки в состоянии disabled
+                button.background_disabled_normal = ''
+
+    def current_number(self):
+        """Подсвечивает номер текущего упражнения"""
+        layout = self.ids.grid_ex_number
+        button = layout.children[len(layout.children) - Tr_St_Screen.ex_counter()]
+        button.state = 'down'
+        button.disabled_color = get_color_from_hex('#FFFFFF')  # Устанавливаем белый цвет текста
+        button.background_disabled_normal = ''  # Отключаем фон для кнопки в состоянии disabled
 
     def check_ex_counter(self) -> bool:
         if Tr_St_Screen.ex_counter() < self.take_number_of_ex():
@@ -369,6 +391,7 @@ class Train_Start_Screen(Screen):
     # Опустить флажок, когда тренировка закончится
     # screen_train = self.manager.get_screen('Train_Screen')
     # screen_train.flag = False
+
 
 class Train_Finish_Screen(Screen):
 
