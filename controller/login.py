@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+"""Файл-контроллер для работы окна-входа (логин и регистрация) и модуля"""
+
+
 from module.work_with_db import DB
 import logging
 
@@ -9,6 +12,8 @@ db = DB()
 
 
 class Login():
+
+
     # Класс для работы со входом пользователя в аккаунт
     @staticmethod
     def user_from_bd(username: str) -> list:
@@ -28,6 +33,8 @@ class Login():
         except Exception:
             print('Логин пользователя в БД не найден')
             return [1, 1, 1, 1]
+
+
 
     @staticmethod
     def check_user(d: dict) -> bool:

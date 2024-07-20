@@ -6,7 +6,6 @@ from controller.login import Login
 from controller.login import Registration
 from menu_screen import MenuApp
 
-
 Builder.load_string("""
 <EnterScreen>:
     AnchorLayout:
@@ -383,8 +382,6 @@ class LoginScreen(Screen):
             # my_app.stop()
             App.get_running_app().stop()
             MenuApp().run()
-
-
         else:
             print('try again')
             self.ids.confirm.text = 'try again'
@@ -501,7 +498,7 @@ class WeekdayScreen(Screen):
             self.list.pop(i + 1)
         else:
             self.list.insert(i, 0)
-            self.list.remove(i+1)
+            self.list.remove(i + 1)
         return self.list
 
     def active_tue(self):
@@ -526,7 +523,6 @@ class WeekdayScreen(Screen):
             self.list.remove(i + 1)
         return self.list
 
-
     def active_thr(self):
         i = 3
         if self.ids.thr.state == 'down':
@@ -537,7 +533,6 @@ class WeekdayScreen(Screen):
             self.list.insert(i, 0)
             self.list.remove(i + 1)
         return self.list
-
 
     def active_fr(self):
         i = 4
@@ -550,7 +545,6 @@ class WeekdayScreen(Screen):
             self.list.remove(i + 1)
         return self.list
 
-
     def active_sat(self):
         i = 5
         if self.ids.sat.state == 'down':
@@ -561,7 +555,6 @@ class WeekdayScreen(Screen):
             self.list.insert(i, 0)
             self.list.remove(i + 1)
         return self.list
-
 
     def active_sun(self):
         i = 6
@@ -646,6 +639,7 @@ class MusculetypeScreen(Screen):
             self.list.insert(i, 0)
             self.list.remove(i + 1)
         return self.list
+
     def active_back(self):
         i = 1
         if self.ids.back.state == 'down':
@@ -689,7 +683,6 @@ class MusculetypeScreen(Screen):
             self.list.insert(i, 0)
             self.list.remove(i + 1)
         return self.list
-
 
     def active_body(self):
         i = 5
@@ -750,7 +743,7 @@ class FatScreen(Screen):
         self.ids.fat_label.text = str(round(self.ids.fat_slider.value, 1)) + '%'
 
     def confirm(self):
-        Registration.user_char['fat']=self.ids.fat_label.text[:-1]
+        Registration.user_char['fat'] = self.ids.fat_label.text[:-1]
         print(Registration.user_char['fat'])
         self.manager.current = 'UserInfo Screen'
         self.default_view()
@@ -759,7 +752,7 @@ class FatScreen(Screen):
         """Очищает выбор пользователя в БД"""
 
         self.manager.current = 'Musculetype Screen'
-        Registration.user_char['fat'] =15.5
+        Registration.user_char['fat'] = 15.5
         self.default_view()
 
     def default_view(self):
@@ -797,6 +790,7 @@ class UserInfoScreen(Screen):
         elif self.ids.check_password.text == '':
             self.ids.check_password.password = False
             self.ids.check_password.text = 'Подтверждение пароля'
+
     def default_fill_email(self):
         """Возвращает имя юзера по умолчанию"""
 
@@ -821,12 +815,12 @@ class UserInfoScreen(Screen):
         elif self.ids.weight.text == '':
             self.ids.weight.text = 'Вес'
 
-    def __password_control(self)->bool:
+    def __password_control(self) -> bool:
         """
         Проверяет, совпали ли пароли
         :return: True, если пароли совпали
         """
-        if self.ids.new_password.text==self.ids.check_password.text:
+        if self.ids.new_password.text == self.ids.check_password.text:
             return True
         return False
 
@@ -868,8 +862,6 @@ class UserInfoScreen(Screen):
             else:
                 print('Пароли должны сопадать')
 
-
-
     def go_back(self):
         """Очищает выбор пользователя в БД"""
         if self.__check_filling():
@@ -889,11 +881,10 @@ class UserInfoScreen(Screen):
         self.ids.weight.text = 'Вес'
 
 
-
 class StartScreen(Screen):
     def confirm(self):
         Registration.fill_user_bd()
-        # self.manager.current = "Enter Screen"
+        self.manager.current = "Log in"
         print('У-ра!')
 
     def go_back(self):
@@ -916,6 +907,7 @@ class TestApp(App):
         sm.add_widget(StartScreen(name='Start Screen'))
 
         return sm
+
 
 TestApp().run()
 # my_app=TestApp()

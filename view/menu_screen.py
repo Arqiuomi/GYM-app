@@ -13,6 +13,7 @@ from kivy.uix.label import Label
 from controller.exercise_window import Exercise_Screen
 from controller.exercise_window import Tr_St_Screen
 from kivy.clock import Clock
+from kivymd.uix.pickers import MDDatePicker
 
 Builder.load_string("""
 <Ex_Screen>:
@@ -27,6 +28,7 @@ Builder.load_string("""
                 id: calendar
                 background_normal: 'i_calendar.png'
                 background_down:'i_calendar2.jpg'
+                on_press: root.go_to_calendar()
             Button:
                 id: exercise
                 background_normal: 'i_ex.png'
@@ -96,6 +98,7 @@ Builder.load_string("""
             Button:
                 id: calendar
                 text: 'Cal'
+                on_press: root.go_to_calendar()
             Button:
                 id: exercise
                 text: 'Ex'
@@ -134,6 +137,7 @@ Builder.load_string("""
             Button:
                 id: calendar
                 text: 'Cal'
+                on_press: root.go_to_calendar()
             Button:
                 id: exercise
                 text: 'Ex'
@@ -176,6 +180,7 @@ Builder.load_string("""
             Button:
                 id: calendar
                 text: 'Cal'
+                on_press: root.go_to_calendar()
             Button:
                 id: exercise
                 text: 'Ex'
@@ -183,6 +188,30 @@ Builder.load_string("""
             Button:
                 id: train
                 text: 'Tr'
+            Button:
+                id: statistic
+                text: 'Stat'
+                
+<Calendar_Screen>:
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'bottom'
+        BoxLayout:
+            spacing: 15
+            orientation: 'horizontal'
+            size_hint: [1, .15]
+            Button:
+                id: calendar
+                text: 'Cal'
+                
+            Button:
+                id: exercise
+                text: 'Ex'
+                on_press: root.go_to_ex()
+            Button:
+                id: train
+                text: 'Tr'
+                on_press: root.go_to_train()
             Button:
                 id: statistic
                 text: 'Stat'
@@ -242,6 +271,10 @@ class Ex_Screen(Screen):
         else:
             self.manager.current = 'Train_Screen'
 
+    def go_to_calendar(self):
+        self.default_view()
+        self.manager.current = 'Calendar_Screen'
+
     def default_view(self):
         self.ids.search.text = 'Введите название упражнения'
         self.remove_label_text()
@@ -258,8 +291,13 @@ class Train_Screen(Screen):
         self.flag = False
 
     def go_to_ex(self):
+        # print(Exercise_Screen.test())
         self.default_view()
         self.manager.current = 'Ex_Screen'
+
+    def go_to_calendar(self):
+        self.default_view()
+        self.manager.current = 'Calendar_Screen'
 
     def go_to_train_start(self):
         self.default_view()
@@ -388,6 +426,10 @@ class Train_Start_Screen(Screen):
     def go_to_ex(self):
         self.manager.current = 'Ex_Screen'
 
+    def go_to_calendar(self):
+        self.default_view()
+        self.manager.current = 'Calendar_Screen'
+
     # Опустить флажок, когда тренировка закончится
     # screen_train = self.manager.get_screen('Train_Screen')
     # screen_train.flag = False
@@ -406,6 +448,39 @@ class Train_Finish_Screen(Screen):
         pass
 
 
+class Calendar_Screen(Screen):
+
+    def go_to_train(self):
+        self.default_view()
+        screen_train = self.manager.get_screen('Train_Screen')
+        if screen_train.flag:
+            self.manager.current = 'Train_Start_Screen'
+        else:
+            self.manager.current = 'Train_Screen'
+
+    def go_to_ex(self):
+        self.default_view()
+        self.manager.current = 'Ex_Screen'
+
+    def default_view(self):
+        pass
+
+
+    # def build(self):
+    #     self.theme_cls.primary_palette = "Blue"
+    #     self.show_date_picker()  # Вызываем метод show_date_picker() сразу при запуске приложения
+    #     return
+    #
+    # def show_date_picker(self):
+    #     date_dialog = MDDatePicker()
+    #     date_dialog.bind(on_save=self.on_date_picker_callback)
+    #     # date_dialog = MDDatePicker(callback=self.on_date_picker_callback)
+    #     date_dialog.open()
+    #
+    # def on_date_picker_callback(self, instance, date):
+    #     print(date)
+
+
 class MenuApp(App):
     def build(self):
         sm = ScreenManager()
@@ -413,6 +488,7 @@ class MenuApp(App):
         sm.add_widget(Train_Start_Screen(name='Train_Start_Screen'))
         sm.add_widget(Ex_Screen(name='Ex_Screen'))
         sm.add_widget(Train_Finish_Screen(name='Train_Finish_Screen'))
+        sm.add_widget(Calendar_Screen(name="Calendar_Screen"))
         return sm
 
 
