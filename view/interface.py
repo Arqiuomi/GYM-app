@@ -4,360 +4,9 @@ from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.lang import Builder
 from controller.login import Login
 from controller.login import Registration
-from menu_screen import MenuApp
-
-Builder.load_string("""
-<EnterScreen>:
-    AnchorLayout:
-        BoxLayout:
-            spacing: 15
-            orientation: 'vertical'
-            size_hint: [.5, .25]
-            Button:
-                text: 'Log in'
-                on_press: root.manager.current ="Log in"
-            Button:
-                text: 'Sign up'
-                on_press: root.manager.current ="Aim Screen"
-<LoginScreen>:
-    AnchorLayout:
-        id: LoginWidgets
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint: [.5, .25]
-            GridLayout:
-                cols:2
-                padding: 0, 0, 0, 15
-                Label:
-                    text: 'username'
-                TextInput:
-                    id:username
-                    text: 'Bob Paris'                                                
-                    on_focus: root.default_fill_username()
-                    multiline: False
-                Label:
-                    text: 'password'
-                TextInput:
-                    id:password
-                    text: 'K@r1'
-                    on_focus: root.default_fill_password()
-                    password: False
-                    multiline: False
-            Button:
-                size_hint: [1, .25]
-                id: confirm
-                text: 'Confirm'
-                on_press: root.confirm()
-            Button:
-                size_hint: [1, .25]
-                text: 'Go back'
-                on_press: root.go_back()
-             
-<AimScreen>:
-    AnchorLayout:
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint: [.5, .5]
-            Button:
-                text: 'Подсушиться'
-                on_press: root.confirm_thin() 
-            Button:
-                text: 'Набрать массу'
-                on_press: root.confirm_mass()
-            Button:
-                text: 'Поддерживать тело в тонусе'
-                on_press: root.confirm_fit()
-            BoxLayout:
-                orientation: 'vertical'
-                spacing: 2
-                AnchorLayout:
-                    Button:
-                        size_hint: [.5, .7]
-                        text: 'Go back'
-                        on_press: root.default_view(groupname='smth'); root.manager.current ="Enter Screen"; root.go_back()                      
-<LevelScreen>:
-    AnchorLayout:   
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint: [.5, .5]
-            spacing: 20
-            BoxLayout:
-                orientation: 'vertical'
-                Button:
-                    id: beginner
-                    text: 'Новичок'
-                    on_press: root.confirm_beginner() 
-                Label:
-                    size_hint: [1, .5]
-                    text: 'Первый раз в зале'
-                    canvas.before:
-                        Color:
-                            rgba: 0, 0.5, 0.5, 1
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-            BoxLayout:
-                orientation: 'vertical'
-                Button:
-                    id: intermediate
-                    text: 'Продолжающий'
-                    on_press:  root.confirm_intermediate()
-                Label:
-                    size_hint: [1, .5]
-                    text: 'Занимаюсь для себя несколько месяцев'
-                    canvas.before:
-                        Color:
-                            rgba: 0, 0.5, 0.5, 1
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-            BoxLayout:
-                orientation: 'vertical'
-                Button:
-                    id: profi
-                    text: 'Профи'
-                    on_press: root.confirm_profi()
-                Label:
-                    size_hint: [1, .5]
-                    text: 'Регулярно тренируюсь на протяжении нескольких лет'
-                    canvas.before:
-                        Color:
-                            rgba: 0, 0.5, 0.5, 1
-                        Rectangle:
-                            size: self.size
-                            pos: self.pos
-            BoxLayout:
-                orientation: 'vertical'
-                AnchorLayout:
-                    Button:
-                        size_hint: [.5, .7]
-                        text: 'Go back'
-                        on_press: root.default_view(groupname='smth'); root.manager.current ="Aim Screen"; root.go_back()
-<WeekdayScreen>:    
-    AnchorLayout:
-        BoxLayout:
-            spacing: 15        
-            GridLayout:
-                cols:2
-                padding: 0, 0, 0, 15
-                ToggleButton:
-                    id: mon  
-                    text: 'Пн'
-                    on_press: root.active_mon()
-                ToggleButton:
-                    id: tue
-                    text: 'Вт'
-                    on_press: root.active_tue()
-                ToggleButton:
-                    id: wen
-                    text: 'Ср'
-                    on_press: root.active_wen()
-                ToggleButton:
-                    id: thr
-                    text: 'Чт'
-                    on_press: root.active_thr()
-                ToggleButton:
-                    id: fr
-                    text: 'Пт'
-                    on_press: root.active_fr()
-                ToggleButton:
-                    id: sat
-                    text: 'Сб'
-                    on_press: root.active_sat()
-                ToggleButton:
-                    id: sun
-                    text: 'Вс'
-                    on_press: root.active_sun()
-                BoxLayout    
-                    orientation: 'vertical'
-                    AnchorLayout:
-                        Button:
-                            size_hint: [.5, .7]
-                            id: confirm
-                            text: 'Confirm'
-                            on_press: root.confirm(); root.default_view()
-                    AnchorLayout:
-                        Button:
-                            size_hint: [.5, .7]
-                            text: 'Go back'
-                            on_press: root.go_back()
-<MusculetypeScreen>:
-    AnchorLayout:
-        BoxLayout:
-            height: '200dp'
-            width: '200dp' 
-            spacing: 15
-            GridLayout:
-                cols:2
-                CheckBox:
-                    id: chest
-                    background_checkbox_normal: 'i_chest.png'
-                    background_checkbox_down:'i_chest_frame.png'
-                    on_press: root.active_chest()   
-                CheckBox
-                    id: back
-                    size:          
-                    background_checkbox_normal: 'i_back.png'
-                    background_checkbox_down:'i_back_frame.png'
-                    on_press: root.active_back() 
-                CheckBox
-                    id: hand
-                    size:          
-                    background_checkbox_normal: 'i_hand.png'
-                    background_checkbox_down:'i_hand_frame.png'
-                    on_press: root.active_hand()
-                CheckBox
-                    id: leg
-                    size:          
-                    background_checkbox_normal: 'i_leg2.png'
-                    background_checkbox_down:'i_leg2_frame.png'
-                    on_press: root.active_leg()
-                CheckBox
-                    id: shoulder
-                    size:          
-                    background_checkbox_normal: 'i_shoulder.png'
-                    background_checkbox_down:'i_shoulder_frame.png'
-                    on_press: root.active_shoulder()
-                CheckBox
-                    id: body
-                    size:          
-                    background_checkbox_normal: 'i_body.png'
-                    background_checkbox_down:'i_body_frame.png'
-
-                    on_press: root.active_body()
-                AnchorLayout:
-                    Button:
-                        size_hint: [.5, .7]
-                        text: 'Go back'
-                        on_press: root.go_back()
-                AnchorLayout:
-                    Button:
-                        size_hint: [.5, .7]
-                        id: confirm
-                        text: 'Confirm'
-                        on_press: root.confirm(); root.default_view()
-<FatScreen>
-    AnchorLayout:
-        BoxLayout:
-            orientation: 'vertical' 
-            GridLayout:
-                cols: 3
-                AnchorLayout:
-                    id: fat_thin
-                    size_hint: [.3, .3]
-                    Image:
-                        source: 'fat_thin.png'
-                AnchorLayout:
-                    id: fat_thin
-                    size_hint: [1, 1]
-                    Image:
-                        source: 'fat_fit.png'
-                AnchorLayout:
-                    id: fat_thin
-                    size_hint: [.3, .3]
-                    Image:
-                        source: 'fat_fat.png'
-            AnchorLayout:
-                anchor_x: 'center'           
-                anchor_y: 'bottom'          
-            Label:
-                id: fat_label 
-                text: '30.0%'
-                bold: True
-                font_size: '30sp'
-            Slider:
-                id: fat_slider 
-                max: 85
-                min: 5
-                value: 30
-                on_touch_up: root.label_value()
-            Label:
-                text: 'Оцените уровень подкожного жира'
-                sixe_hint: [1, 1]
-                font_size: '20sp'
-            
-            GridLayout:
-                cols: 2
-                AnchorLayout:
-                    Button:
-                        size_hint: [.5, .7]
-                        text: 'Go back'
-                        on_press: root.go_back()
-                AnchorLayout:    
-                    Button:
-                        size_hint: [.5, .7]
-                        id: confirm
-                        text: 'Confirm'
-                        on_press: root.confirm()
-<UserInfoScreen>
-    AnchorLayout:
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint: [.5, .5]
-            TextInput: 
-                id: login
-                text: 'Логин'                                                
-                on_focus: root.default_fill_login()
-                multiline: False
-            TextInput:
-                id: new_password
-                text: 'Пароль'
-                on_focus: root.default_fill_password()
-                password: False
-                multiline: False
-            TextInput:
-                id: check_password
-                text: 'Подтверждение пароля'
-                on_focus: root.default_fill_check_password()
-                password: False
-                multiline: False
-            TextInput:
-                id: email
-                text: 'email'                                                
-                on_focus: root.default_fill_email()
-                multiline: False
-            Spinner:
-                id: male
-                text: 'Пол'
-                values: ('М', 'Ж')
-            TextInput:
-                id: height
-                text: 'Рост'                                                
-                on_focus: root.default_fill_height()
-                multiline: False
-            TextInput:
-                id: weight
-                text: 'Вес'                                                
-                on_focus: root.default_fill_weight()
-                multiline: False
-            GridLayout:
-                cols: 2
-                AnchorLayout:    
-                    Button:
-                        size_hint: [.5, .7]
-                        text: 'Go back'
-                        on_press: root.go_back()
-                AnchorLayout:
-                    Button:
-                        size_hint: [.5, .7]
-                        id: confirm
-                        text: 'Confirm'
-                        on_press: root.confirm()
-<StartScreen>
-    AnchorLayout:
-        BoxLayout:
-            orientation: 'vertical'
-            size_hint: [.5, .5]
-            AnchorLayout:
-                Button:
-                    text: 'На старт!'
-                    on_press: root.confirm()
-            AnchorLayout:
-                Button:
-                    size_hint: [.3, .5]
-                    text: 'Зачем Go back?!'
-                    on_press: root.go_back()
-""")
+# from menu_screen import MenuApp
+# import os
+# import subprocess
 
 
 class EnterScreen(Screen):
@@ -375,13 +24,24 @@ class LoginScreen(Screen):
 
     def confirm(self):
         """Проверяет введённые данные, в случае успешной проверки входит в аккаунт"""
-        # print(self.user_login())
+
         if Login.check_user(self.user_login()):
+            # Была идея создать метод для обновления логина
+            # Login.update_login(self.user_login()['username'])
+            print(f'self login is {self.user_login()["username"]}')
             print('sucsess!')
             self.ids.confirm.text = 'sucsess!'
-            # my_app.stop()
+            with open('desktop_login_name.txt', 'w', encoding='UTF-8') as file:
+                file.write(self.user_login()['username'])
+
+            # # my_app.stop()
             App.get_running_app().stop()
+            # MenuApp().run()
+            # os.startfile('C:/Users/aelis/Documents/GitHub/GYM-app/controller/start_menu.py')
+            # subprocess.run('C:/Users/aelis/Documents/GitHub/GYM-app/controller/start_menu.py')
+            from menu_screen import MenuApp
             MenuApp().run()
+
         else:
             print('try again')
             self.ids.confirm.text = 'try again'
@@ -895,6 +555,7 @@ class StartScreen(Screen):
 class TestApp(App):
 
     def build(self):
+        Builder.load_file('interface.kv', encoding='CP1251')
         sm = ScreenManager()
         sm.add_widget(EnterScreen(name='Enter Screen'))
         sm.add_widget(LoginScreen(name='Log in'))

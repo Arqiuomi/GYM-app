@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+"""Файл-контроллер для взаимодействия основных окон приложения
+с модулем"""
 
 from module.work_with_db import DB
 import logging
@@ -6,10 +8,21 @@ from module.class_about_user import User, User_Char
 from module.train import train_main
 from module.train import current_ex_name
 
+# Тут должен быть логин, который передаётся с экрана!!!!!
+with open('desktop_login_name.txt', 'r', encoding='UTF-8') as file:
+    desktop_login = file.readline()
+
 db = DB()
-user_char = User_Char()
+# Создаём объект юзера по логину, который ввёл пользователь.
+user = User(*db.select_user(desktop_login))
+print('final login is ', user.login)
+# Создаём класс характеристик юзера;
+# запрашиваем информацию из БД по id юзера
+user_char = User_Char(*db.select_user_char(user.iduser))
+
 # Вызываем функцию, чтобы началось первое упражнение
 train_main(db, user_char)
+
 
 class Exercise_Screen():
 
@@ -91,71 +104,3 @@ class Tr_St_Screen():
         # Возможно, понадобиться ещё 1 файлик контроллера.
         pass
 
-
-
-# class Tr_St_Screen():
-#
-#     @staticmethod
-#     def take_all_inf() -> dict:
-#         """
-#         Возвращает словарь со всеми характеристиками тренировки
-#         :return: name - название упражнения,
-#         number_of_ex - число упражнений в тренировке,
-#         weight - вес в подходе
-#         number - кол-во повторений в подходе
-#         """
-#         train_main(db, user_char)
-#         return {'name': train_main.ex_name, 'number_of_ex': train_main.number_of_ex,
-#                 'weight': train_main.weight, 'number': train_main.number}
-#
-#     @staticmethod
-#     def take_ex_name(dictt) -> str:
-#         """Возвращает название упражнения.
-#         train_main - основная функция, запускаемая при начале тренировки"""
-#         return dictt['name']
-#
-#     @staticmethod
-#     def take_number_of_ex(dictt) -> int:
-#         """
-#         :return: Число упражнений в текущей тренировке
-#         """
-#         return dictt['number_of_ex']
-#
-#     @staticmethod
-#     def take_ex_info(dictt) -> list:
-#         """
-#
-#         :return: возвращает список с весом и числом повторений
-#         """
-#         return [dictt['weight'], dictt['number']]
-#
-#     @staticmethod
-#     def train_finish():
-#         # передаёт в модуль, что тренировка завершена.
-#         # Возможно, понадобиться ещё 1 файлик контроллера.
-#         pass
-#
-#
-# class Uhaha():
-#     def take_inf(self):
-#         train_main(db, user_char)
-#         return {'name': train_main.ex_name, 'number_of_ex': train_main.number_of_ex,
-#                 'weight': train_main.weight, 'number': train_main.number}
-#
-#     def t_name(self, dictt):
-#         return dictt['name']
-#
-#     def t_weight(self, dictt):
-#         return dictt['weight']
-#
-#
-# class Bingg():
-#     d = Uhaha.take_inf()
-# print(Exercise_Screen.take_full_descr('Жим штанги лёжа'))
-# print(Exercise_Screen.find_ex('Жим штанги лёжа'))
-
-# tr = Tr_St_Screen()
-#
-# print(tr.take_number_of_ex())
-# print(tr.take_ex_info())
-# print(tr.take_ex_info())

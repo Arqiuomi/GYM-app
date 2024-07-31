@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 """Файл-контроллер для работы окна-входа (логин и регистрация) и модуля"""
 
-
 from module.work_with_db import DB
 import logging
 
@@ -10,9 +9,7 @@ logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
 
 db = DB()
 
-
-class Login():
-
+class Login:
 
     # Класс для работы со входом пользователя в аккаунт
     @staticmethod
@@ -34,8 +31,6 @@ class Login():
             print('Логин пользователя в БД не найден')
             return [1, 1, 1, 1]
 
-
-
     @staticmethod
     def check_user(d: dict) -> bool:
         """
@@ -52,7 +47,7 @@ class Login():
             logging.warning('в интерфейс введён некорректный логин')
 
 
-class Registration():
+class Registration:
     # Словари, значение в которых заполняются через интерфейс программы
     user_char = {'aim': 1, 'level': 1, 'days': 'Вт,Чт,Сб', 'muscule': 'всё тело', 'male': 'М',
                  'height': 178.3, 'weight': 100.1, 'fat': 15.5, 'day_counter': 0, 'mark': 0, 'weight_mult': 1.1,
@@ -73,11 +68,13 @@ class Registration():
             print(f'ошибка в методе fill_user_bd {exc}')
             logging.error(f'не удалось зарегистрировать пользователя в БД {exc}')
 
-l = [0, 0, 0, 0, 0, 0, 0]
 
-l.insert(0, 1)
-print(l)
-l.pop()
-print(l)
-l.insert(0, 2)
-print(l)
+if __name__ == '__main__':
+    lst = [0, 0, 0, 0, 0, 0, 0]
+
+    lst.insert(0, 1)
+    print(lst)
+    lst.pop()
+    print(lst)
+    lst.insert(0, 2)
+    print(lst)
