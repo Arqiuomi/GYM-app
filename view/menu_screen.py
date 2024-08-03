@@ -12,8 +12,18 @@ from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
 from controller.exercise_window import Exercise_Screen
 from controller.exercise_window import Tr_St_Screen
+from controller.exercise_window import CalendarDateScreen
 from kivy.clock import Clock
-from kivymd.uix.pickers import MDDatePicker
+import locale
+from datetime import datetime, timedelta
+from kivy.uix.popup import Popup
+from kivy.uix.gridlayout import GridLayout
+
+locale.setlocale(
+    category=locale.LC_ALL,
+    locale="Russian"
+)
+
 
 class Ex_Screen(Screen):
 
@@ -241,6 +251,75 @@ class Train_Finish_Screen(Screen):
 
 class Calendar_Screen(Screen):
 
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.create_calendar()
+
+    def create_calendar(self):
+        # Устанавливаем текущую дату
+        today = datetime.now()
+        first_day_of_month = today.replace(day=1)
+
+        # Получаем номер первого дня недели для первого дня месяца
+        start_day = first_day_of_month.weekday()
+        days_in_month = (first_day_of_month.replace(month=today.month % 12 + 1) - timedelta(days=1)).day
+        # Создаём основной лэйбл
+        main_layout = AnchorLayout(anchor_x='center', anchor_y='top')
+        top_layout = BoxLayout(orientation='vertical', size_hint=[1, .7])
+        # Создаём бокс для названия месяца
+        label = Label(text=str(today.strftime('%B')), size_hint=[1, .1])
+        top_layout.add_widget(label)
+
+        # Создаём сетку для календаря
+        grid = GridLayout(cols=7, spacing=20, size_hint_y=None, padding=[0, 40, 0, 0])
+        grid.bind(minimum_height=grid.setter('height'))
+
+        # Добавляем заголовок дней недели
+        weekdays = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс']
+        for day in weekdays:
+            grid.add_widget(Label(text=day))
+
+        # Добавляем пустые ячейки до первого дня месяца
+        for _ in range(start_day):
+            grid.add_widget(Label())
+
+        # Добавляем дни месяца
+        for day in range(1, days_in_month + 1):
+            # btn = Button(text=str(day), size_hint_y=None, height=80)
+            btn = Button(text=str(day), size_hint_y=None, height=70)
+            btn.bind(on_release=self.on_date_select)
+
+            # Выделяем определённые даты
+            # if day in CalendarDateScreen.find_train_day():
+            if day in CalendarDateScreen.find_train_day():
+                btn.background_color = (1, 0, 0, 1)  # Красный цвет
+                btn.color = (1, 1, 1, 1)  # Белый текст
+
+            grid.add_widget(btn)
+        # Добавляем календарь в основной лэйбл
+        top_layout.add_widget(grid)
+        # main_layout.add_widget(Builder.load_file('calendar_bar.kv'))
+        main_layout.add_widget(top_layout)
+        self.add_widget(main_layout)
+
+    def on_date_select(self, instance):
+        date_selected = instance.text
+        date = self._find_date(date_selected)
+
+        if int(date_selected) in CalendarDateScreen.find_train_day():
+
+            popup = Popup(title='Выбранная дата', content=Label(text=f'Cегодня {date}. У тебя тренировка'),
+                          size_hint=(0.5, 0.5))
+            popup.open()
+        else:
+            popup = Popup(title='Выбранная дата', content=Label(text=f'Сегодня {date}. Отдыхай.'),
+                          size_hint=(0.5, 0.5))
+            popup.open()
+
+    def _find_date(self, day: str):
+        date = datetime(year=datetime.today().year, month=datetime.today().month, day=int(day))
+        return datetime.strftime(date, '%B, %#d число')
+
     def go_to_train(self):
         self.default_view()
         screen_train = self.manager.get_screen('Train_Screen')
@@ -255,22 +334,6 @@ class Calendar_Screen(Screen):
 
     def default_view(self):
         pass
-
-
-    # def build(self):
-    #     self.theme_cls.primary_palette = "Blue"
-    #     self.show_date_picker()  # Вызываем метод show_date_picker() сразу при запуске приложения
-    #     return
-    #
-    # def show_date_picker(self):
-    #     date_dialog = MDDatePicker()
-    #     date_dialog.bind(on_save=self.on_date_picker_callback)
-    #     # date_dialog = MDDatePicker(callback=self.on_date_picker_callback)
-    #     date_dialog.open()
-    #
-    # def on_date_picker_callback(self, instance, date):
-    #     print(date)
-
 
 class MenuApp(App):
     def build(self):
