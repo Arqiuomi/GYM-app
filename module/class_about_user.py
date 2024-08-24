@@ -42,7 +42,7 @@ class User_Char():
         self.weight = weight
         self.fat = fat
         self.day_counter = day_counter
-        self._mark = mark
+        self.mark = mark
         self.weight_mult = weight_mult
         self.number_mult = number_mult
         self.current_plan = current_plan
@@ -73,15 +73,6 @@ class User_Char():
             return self.day_counter
 
             pass
-
-    @property
-    def mark(self):
-        return self._mark
-
-    @mark.setter
-    def mark(self, key: str) -> int:
-        """Добавляет в суммарную оценку юзера текущую оценку тренировки"""
-        self._mark += d_mark[key]
 
     def set_weight_mult(self) -> float:
         """Устанавливает значение множителя веса"""

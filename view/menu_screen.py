@@ -13,6 +13,7 @@ from kivy.uix.label import Label
 from controller.exercise_window import Exercise_Screen
 from controller.exercise_window import Tr_St_Screen
 from controller.exercise_window import CalendarDateScreen
+from controller.exercise_window import Tr_Fin_Screen
 from kivy.clock import Clock
 import locale
 from datetime import datetime, timedelta
@@ -118,6 +119,8 @@ class Train_Screen(Screen):
 
 
 class Train_Start_Screen(Screen):
+    """Active-train mode"""
+
     def __init__(self, **kwargs):
         super(Train_Start_Screen, self).__init__(**kwargs)
         self.seconds = 0
@@ -231,12 +234,45 @@ class Train_Start_Screen(Screen):
         self.default_view()
         self.manager.current = 'Calendar_Screen'
 
+    def default_view(self):
+        pass
+
     # Опустить флажок, когда тренировка закончится
     # screen_train = self.manager.get_screen('Train_Screen')
     # screen_train.flag = False
 
 
 class Train_Finish_Screen(Screen):
+    """Window with train results"""
+
+    def go_to_train_screen(self, groupname: str):
+        """Back to the open screen.
+        Take groupname from kivy lang file."""
+        self.default_view(groupname)
+        self.manager.current = 'Train_Screen'
+
+    def confirm_hard(self):
+        """Take the mark from the interface
+        'hard': 0 and send it to the controller
+        """
+        Tr_Fin_Screen.take_mark('трудно')
+
+    def confirm_nice(self):
+        """Take the mark from the interface
+        'nice': 1 and send it to the controller
+        """
+        Tr_Fin_Screen.take_mark('круто')
+
+    def confirm_easy(self):
+        """Take the mark from the interface
+        'easy': 0 and send it to the controller
+        """
+        Tr_Fin_Screen.take_mark('легко')
+
+
+    def go_to_calendar(self):
+        self.default_view()
+        self.manager.current = 'Calendar_Screen'
 
     def go_to_train(self):
         self.default_view()
@@ -245,8 +281,11 @@ class Train_Finish_Screen(Screen):
     def go_to_ex(self):
         self.manager.current = 'Ex_Screen'
 
-    def default_view(self):
-        pass
+    def default_view(self, groupname: str):
+        """Возвращает вид по умолчанию"""
+        widgets = ToggleButtonBehavior.get_widgets(groupname)
+        for value in widgets:
+            value.state = 'normal'
 
 
 class Calendar_Screen(Screen):
@@ -294,11 +333,10 @@ class Calendar_Screen(Screen):
             if day in CalendarDateScreen.find_train_day():
                 btn.background_color = (1, 0, 0, 1)  # Красный цвет
                 btn.color = (1, 1, 1, 1)  # Белый текст
-
             grid.add_widget(btn)
+        # Builder.load_file('clndr_screen.kv', encoding='CP1251')
         # Добавляем календарь в основной лэйбл
         top_layout.add_widget(grid)
-        # main_layout.add_widget(Builder.load_file('calendar_bar.kv'))
         main_layout.add_widget(top_layout)
         self.add_widget(main_layout)
 
@@ -334,6 +372,7 @@ class Calendar_Screen(Screen):
 
     def default_view(self):
         pass
+
 
 class MenuApp(App):
     def build(self):

@@ -9,11 +9,12 @@ from module.train import train_main
 from module.train import current_ex_name
 from datetime import datetime, timedelta
 from module.user_char_const import d_days
+from module.user_char_const import d_mark
 
 # # Тут должен быть логин, который передаётся с экрана!!!!!
-# with open('desktop_login_name.txt', 'r', encoding='UTF-8') as file:
-#     desktop_login = file.readline()
-desktop_login = 'Tom'
+with open('desktop_login_name.txt', 'r', encoding='UTF-8') as file:
+    desktop_login = file.readline()
+# desktop_login = 'Tom'
 #
 db = DB()
 # Создаём объект юзера по логину, который ввёл пользователь.
@@ -105,6 +106,18 @@ class Tr_St_Screen():
         # передаёт в модуль, что тренировка завершена.
         # Возможно, понадобиться ещё 1 файлик контроллера.
         pass
+
+class Tr_Fin_Screen():
+    """
+    Взаимодействует с окном Finish_Screen
+    """
+    @staticmethod
+    def take_mark(key: str):
+        """Передает оценку тренировки в класс
+        User_Char"""
+        user_char.mark += d_mark[key]
+
+
 
 
 class CalendarDateScreen:

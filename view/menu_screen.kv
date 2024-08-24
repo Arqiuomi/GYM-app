@@ -151,7 +151,53 @@
                 on_press: root.call_next_ex(), root.current_train(), root.create_labels(), root.current_number()
             Label:
                 id: ex_info_label
+
+
 <Train_Finish_Screen>:
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        padding: 0, 45, 0, 0
+        BoxLayout:
+            spacing: 20
+            orientation: 'vertical'
+            size_hint: [.4, .1]
+            Label:
+                text: 'Тренировка завершена!'
+                font_size: min(self.width, self.height)*1.5
+            Label:
+                text: ' Как всё прошло?'
+                font_size: min(self.width, self.height)*1.5
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'center'
+        GridLayout:
+            cols: 3
+            rows: 2
+            size_hint: [.5, .25]
+            padding: 0, 0, 0, 0
+            ToggleButton:
+                group: 'rate'
+                id: hard
+                text: 'Тяжко'
+                bold: True
+                font_size: min(self.width, self.height)/5
+                on_press: root.confirm_hard(), root.go_to_train_screen('rate')
+            ToggleButton:
+                group: 'rate'
+                id: nice
+                text: 'Круто'
+                bold: True
+                font_size: min(self.width, self.height)/5
+                on_press: root.confirm_nice(), root.go_to_train_screen('rate')
+            ToggleButton:
+                group: 'rate'
+                id: easy
+                text: 'Легко!'
+                bold: True
+                font_size: min(self.width, self.height)/5
+                on_press: root.confirm_easy(), root.go_to_train_screen('rate')
+
     AnchorLayout:
         anchor_x: 'center'
         anchor_y: 'bottom'
