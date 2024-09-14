@@ -148,7 +148,7 @@
                 cols: 3
             Button:
                 text: 'start'
-                on_press: root.call_next_ex(), root.current_train(), root.create_labels(), root.current_number()
+                on_press: root.call_next_ex(), root.current_train(), root.create_labels()
             Label:
                 id: ex_info_label
 
@@ -208,11 +208,9 @@
             Button:
                 id: calendar
                 text: 'Cal'
-                on_press: root.go_to_calendar()
             Button:
                 id: exercise
                 text: 'Ex'
-                on_press: root.go_to_ex()
             Button:
                 id: train
                 text: 'Tr'

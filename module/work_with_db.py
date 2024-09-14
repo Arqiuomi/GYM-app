@@ -375,6 +375,7 @@ class DB:
             print(f'connection failed in function get_iduser, exception: {exc}')
             print(exc)
 
+
     def _connection_lastid(self, cursor):
         """Возвращает индекс последней добавленной строки"""
 

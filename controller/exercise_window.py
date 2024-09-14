@@ -81,6 +81,11 @@ class Tr_St_Screen():
         return current_ex_name.count
 
     @staticmethod
+    def ex_counter_fill_zero():
+        """Очищает counter, приравнивая значение к 0"""
+        current_ex_name.count = 0
+
+    @staticmethod
     def take_ex_name() -> str:
         """Возвращает название упражнения.
         train_main - основная функция, запускаемая при начале тренировки"""
@@ -91,6 +96,7 @@ class Tr_St_Screen():
         """
         :return: Число упражнений в текущей тренировке
         """
+        print('New number of ex', train_main.number_of_ex)
         return train_main.number_of_ex
 
     @staticmethod

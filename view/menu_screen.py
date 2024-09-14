@@ -110,9 +110,11 @@ class Train_Screen(Screen):
     def go_to_train_start(self):
         self.default_view()
         self.flag = True
+        # self.manager.get_screen('Train_Start_Screen').new_train = True
         self.manager.current = 'Train_Start_Screen'
-        # Обнуляем секунды при переходе в активный режим тренировки
-        self.manager.get_screen('Train_Start_Screen').zero_seconds()
+        self.manager.get_screen('Train_Start_Screen').train_start()
+        # # Обнуляем секунды при переходе в активный режим тренировки
+        # self.manager.get_screen('Train_Start_Screen').zero_seconds()
 
     def default_view(self):
         pass
@@ -123,12 +125,19 @@ class Train_Start_Screen(Screen):
 
     def __init__(self, **kwargs):
         super(Train_Start_Screen, self).__init__(**kwargs)
+        # self.create_labels()
         self.seconds = 0
         self.new_train = True
-        self.time()
         self.number_of_ex = self.take_number_of_ex()
+
+    def train_start(self):
+        self.time()
+        self.new_train = True
+        self.number_of_ex = self.take_number_of_ex()
+        # self.create_ex_number_label()
         self.current_train()
         self.create_labels()
+
 
     # Время
     def time(self):
@@ -145,19 +154,12 @@ class Train_Start_Screen(Screen):
         seconds = str(self.seconds % 60).zfill(2)
         self.ids.time_label.text = f"{minutes}:{seconds}"
 
-    #  Чистка виджетов
-    def resert(self):
-        # future default_view
-        self.seconds = 0
-        self.ids.time_label.text = "00:00"
-        Clock.unschedule(self.update_time)
-        # important!
-        # self.clear_ex_number_label()
-        # self.clear_ex_info_label()
-
     def clear_ex_number_label(self):
-        layout = self.ids.grid_ex_number
-        layout.clear_widgets()
+        """
+        Удаляет виджеты в gridlayout
+        :return:
+        """
+        self.ids.grid_ex_number.clear_widgets()
 
     def clear_ex_info_label(self):
         layout = self.ids.active_train_mode
@@ -171,20 +173,23 @@ class Train_Start_Screen(Screen):
 
     def create_ex_number_label(self):
         """Создаёт lables с номерами упражнений"""
+        print('create_ex_number_label', self.new_train)
         if self.new_train:
             layout = self.ids.grid_ex_number
+            print("длина", self.number_of_ex)
             for i in range(1, self.number_of_ex + 1):
                 # disabled делает кнопки неактивными
                 button = Button(text=f'{i}', color=(1, 1, 1, 1),
                                 background_color=(182 / 255, 66 / 255, 245 / 255, 1), disabled=True)
                 layout.add_widget(button)
-                # Делает активным 1ую кнопку
-                button = layout.children[len(layout.children) - Tr_St_Screen.ex_counter()]
-                button.state = 'down'
-                # Устанавливаем белый цвет текста
-                button.disabled_color = get_color_from_hex('#FFFFFF')
-                # # Отключаем фон для кнопки в состоянии disabled
-                button.background_disabled_normal = ''
+            # Делает активным 1ую кнопку
+            # button = layout.children[len(layout.children) - Tr_St_Screen.ex_counter()]
+            button = layout.children[-1]
+            button.state = 'down'
+            # Устанавливаем белый цвет текста
+            button.disabled_color = get_color_from_hex('#FFFFFF')
+            # # Отключаем фон для кнопки в состоянии disabled
+            button.background_disabled_normal = ''
 
     def current_number(self):
         """Подсвечивает номер текущего упражнения"""
@@ -196,17 +201,22 @@ class Train_Start_Screen(Screen):
 
     def check_ex_counter(self) -> bool:
         if Tr_St_Screen.ex_counter() < self.take_number_of_ex():
+            print('True')
             return True
+        print('FSL')
         return False
 
     def call_next_ex(self):
-        """Вызывает следующее упражнение"""
+        """Вызывает следующее упражнение
+        Если упражнения завершены, переходит на финишный экран"""
         if self.check_ex_counter():
             Tr_St_Screen.call_train()
+            # нужно!
+            self.current_number()
         else:
-            self.resert()
             self.manager.get_screen('Train_Screen').flag = False
             self.manager.current = 'Train_Finish_Screen'
+            self.default_view()
 
     def current_train(self):
         """Выводит в label название упражнения"""
@@ -227,6 +237,7 @@ class Train_Start_Screen(Screen):
         self.create_ex_info()
         self.new_train = False
 
+
     def go_to_ex(self):
         self.manager.current = 'Ex_Screen'
 
@@ -235,7 +246,14 @@ class Train_Start_Screen(Screen):
         self.manager.current = 'Calendar_Screen'
 
     def default_view(self):
-        pass
+        self.seconds = 0
+        self.ids.time_label.text = "00:00"
+        Clock.unschedule(self.update_time)
+        # important!
+        self.clear_ex_number_label()
+        # counter упражнений делаем 0
+        Tr_St_Screen.ex_counter_fill_zero()
+
 
     # Опустить флажок, когда тренировка закончится
     # screen_train = self.manager.get_screen('Train_Screen')
