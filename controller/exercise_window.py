@@ -6,6 +6,7 @@ from module.work_with_db import DB
 import logging
 from module.class_about_user import User, User_Char
 from module.train import train_main
+from module.train import update_day_counter
 from module.train import current_ex_name
 from datetime import datetime, timedelta
 from module.user_char_const import d_days
@@ -118,10 +119,17 @@ class Tr_Fin_Screen():
     Взаимодействует с окном Finish_Screen
     """
     @staticmethod
-    def take_mark(key: str):
+    def update_user_char_stat(key: str):
         """Передает оценку тренировки в класс
-        User_Char"""
+        User_Char, обновляет число пройденных тренировок
+        и сохраняет обновленную информацию в БД"""
         user_char.mark += d_mark[key]
+        user_char.day_counter +=1
+        Tr_Fin_Screen.update_user_char_stat_DB()
+
+    @staticmethod
+    def update_user_char_stat_DB():
+      db.update_user_char(user_char.iduser, user_char)
 
 
 

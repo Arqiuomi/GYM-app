@@ -138,6 +138,24 @@ class DB:
         except Exception as exc:
             print(f'connection failed in function select_user, exception: {exc}')
 
+    def update_user_char(self, id_user: int, user_char: object):
+        """Обновляет в БД характеристики юзера из экземпляра класса"""
+
+        update_query = f"UPDATE exercise.user_characteristic " \
+                       f"SET day_counter= \"{user_char.day_counter}\", mark = \"{user_char.mark}\""\
+                       f"WHERE (iduser = \"{id_user}\");"
+
+        try:
+            with self._connection.cursor() as cursor:
+                cursor.execute(update_query)
+                # чтобы сохранить в бд
+                self._connection.commit()
+                # self._connection_close() #- for what???
+                print('stats is updated')
+        except Exception as exc:
+            print(f'connection failed in function update_user_char, exception: {exc}')
+            print(exc)
+
     def user_pass(self, desktop_login: str, desktop_password: str) -> bool:
         """
         Метод проверяет, совпали ли логин и пароль пользователя

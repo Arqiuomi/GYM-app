@@ -273,20 +273,19 @@ class Train_Finish_Screen(Screen):
         """Take the mark from the interface
         'hard': 0 and send it to the controller
         """
-        Tr_Fin_Screen.take_mark('трудно')
+        Tr_Fin_Screen.update_user_char_stat('трудно')
 
     def confirm_nice(self):
         """Take the mark from the interface
         'nice': 1 and send it to the controller
         """
-        Tr_Fin_Screen.take_mark('круто')
+        Tr_Fin_Screen.update_user_char_stat('круто')
 
     def confirm_easy(self):
         """Take the mark from the interface
         'easy': 0 and send it to the controller
         """
-        Tr_Fin_Screen.take_mark('легко')
-
+        Tr_Fin_Screen.update_user_char_stat('легко')
 
     def go_to_calendar(self):
         self.default_view()
