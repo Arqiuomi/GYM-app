@@ -208,7 +208,7 @@ class DB:
             На вход принимает индекс нужного плана
         """
 
-        select_query = f"SELECT * FROM exercise.plan WHERE idplan = {idplan};"
+        select_query = f"SELECT * FROM exercise.plan WHERE (idplan = \"{idplan}\");"
         try:
             with self._connection.cursor() as cursor:
                 cursor.execute(select_query)

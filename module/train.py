@@ -83,7 +83,7 @@ class Plan():
 
     def update_plan(self, db: object, user_char: object):
         """Обновляет тренировочный план"""
-        plan = plan_generate(user_char)
+        plan = plan_generate(db, user_char)
         cp = check_plan(db, plan)
         if cp:
             ip = init_plan(cp, db, plan)
@@ -160,9 +160,6 @@ def current_ex_name(db: object, train: object) -> str:
         return 'Жим штанги лёжа'
 
 
-
-
-
 # def current_ex(ex_name: str, db: object) -> object:
 #     """
 #     Создаёт объект класса Exercise - упражнение из БД
@@ -229,7 +226,6 @@ def train_main(db, user_char):
     train_main.weight = ex.weight
 
     train_main.number_of_ex = len(train_list)
-
     # Обнуляем декоратор
     # ex.co
     # print(ex)
@@ -250,14 +246,14 @@ def train_main(db, user_char):
 
 if __name__ == '__main__':
     # Эта строка должна быть в файле main, откуда будет запускаться вся программа!!!
-    #Создание log-файла
+    # Создание log-файла
     open('myapp.log', 'w')
     # Настройки log-файла
     logging.basicConfig(level=logging.INFO, filename='myapp.log', filemode='a',
                         format="%(module)s def %(funcName)s %(levelname)s: %(message)s")
     # Для теста
     db = DB()
-    user_data=db.select_user('Tom')
+    user_data = db.select_user('Tom')
     print(user_data)
     # передаем список, например, из БД, и распаковываем через *
     tom = User(*user_data)
@@ -270,6 +266,3 @@ if __name__ == '__main__':
     print(tom_char.height)
 
     train_main(db, tom_char)
-
-
-

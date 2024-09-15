@@ -52,9 +52,12 @@ class Exercise():
         Создаёт персональное упражнение нашего юзера -
         учитываются множители веса и кол-ва повторений
         """
-        self.weight = round(self.weight * user_char.weight_mult, 1)
-        self.number = int(self.number * user_char.number_mult)
-
-
-
-
+        try:
+            self.weight *= user_char.weight_mult
+            self.number *= user_char.number_mult
+            self.weight = round(self.weight, 1)
+            self.number = int(self.number)
+        except TypeError:
+            print("can't mult weight & number of the train")
+        except Exception as exc:
+            print(f"error in create_personal_ex. {exc}")

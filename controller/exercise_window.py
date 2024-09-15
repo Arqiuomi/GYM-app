@@ -6,7 +6,7 @@ from module.work_with_db import DB
 import logging
 from module.class_about_user import User, User_Char
 from module.train import train_main
-from module.train import update_day_counter
+from module.train import Plan
 from module.train import current_ex_name
 from datetime import datetime, timedelta
 from module.user_char_const import d_days
@@ -24,7 +24,7 @@ print('final login is ', user.login)
 # Создаём класс характеристик юзера;
 # запрашиваем информацию из БД по id юзера
 user_char = User_Char(*db.select_user_char(user.iduser))
-
+plan =Plan.init_plan(db, user_char.current_plan)
 # Вызываем функцию, чтобы началось первое упражнение
 train_main(db, user_char)
 
@@ -57,6 +57,8 @@ class Exercise_Screen():
         return db.select_current_ex(name)[4]
 
 
+
+
 class Tr_St_Screen():
 
     # @staticmethod
@@ -71,6 +73,8 @@ class Tr_St_Screen():
     #
     #     return {'name': train_main.ex_name, 'number_of_ex': train_main.number_of_ex,
     #             'weight': train_main.weight, 'number': train_main.number}
+
+
 
     @staticmethod
     def call_train():
@@ -108,6 +112,7 @@ class Tr_St_Screen():
         """
         return [train_main.weight, train_main.number]
 
+
     @staticmethod
     def train_finish():
         # передаёт в модуль, что тренировка завершена.
@@ -131,6 +136,16 @@ class Tr_Fin_Screen():
     def update_user_char_stat_DB():
       db.update_user_char(user_char.iduser, user_char)
 
+
+    @staticmethod
+    def check_plan():
+        """
+        Проверяет, закончился ли тренировочный цикл.
+        Обновляет тренировочный план.
+        :return:
+        """
+    if train_main.current_plan.cycle_check(user_char):
+        plan.update_plan(db, user_char)
 
 
 
